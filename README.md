@@ -1,0 +1,121 @@
+<div align="center">
+
+<img src="App/Assets.xcassets/BrandIcon.imageset/BrandIcon.png" width="128" height="128" alt="小浣熊阅读" />
+
+# 小浣熊阅读
+
+**搜书快一点，读书舒服一点。**
+
+一款优先兼容阅读书源的 iOS 阅读器
+
+![iOS 15+](https://img.shields.io/badge/iOS-15%2B-315C50)
+![Swift](https://img.shields.io/badge/Swift-F05138?logo=swift&logoColor=white)
+[![GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue)](LICENSE)
+
+[下载安装](#下载安装) · [主要功能](#主要功能) · [应用截图](#应用截图) · [书源说明](#书源说明) · [问题反馈](https://github.com/Aminark/legado-ios/issues)
+
+</div>
+
+小浣熊阅读是一款 iOS 阅读器，由 [Aminark](https://github.com/Aminark) 维护，优先兼容阅读书源。希望从导入书源、搜索书籍到打开阅读，都能方便、顺手一些。
+
+项目仍在边用边改，书源兼容和阅读体验会继续完善。
+
+**小浣熊阅读不提供书源或在线书库。** 书源需由用户自行从网络公开分享获取，或自行编写后导入；也可以直接阅读本地 TXT。
+
+## 下载安装
+
+支持 **iOS / iPadOS 15.0 及以上**。
+
+**IPA 将通过 [GitHub Releases](https://github.com/Aminark/legado-ios/releases) 提供，需要自行签名安装。** 如果 Releases 中还没有安装包，说明公开版本尚未发布。
+
+目前没有付费 iOS 开发者账号，暂时无法提供 TestFlight，也暂不上架 App Store。这个项目主要是自己使用和分享，没有盈利计划。
+
+- **自行签名安装**：使用自己的签名工具安装 IPA。免费 Apple 账号自签的描述文件有效期通常为 7 天，到期需要重新签名安装，见 [Apple 说明](https://developer.apple.com/help/account/basics/about-your-developer-account#enable-a-personal-team-in-xcode)。
+- **巨魔安装**：已支持 [TrollStore](https://github.com/opa334/TrollStore) 的设备可自行尝试安装，具体系统兼容范围以 TrollStore 项目说明为准。
+- **源码构建**：有 macOS 和 Xcode 的朋友也可以自行编译，见 [开发指南](docs/DEVELOPMENT.md)。
+
+## 主要功能
+
+| 功能 | 说明 |
+| --- | --- |
+| 阅读书源 | 支持 JSON、文件、URL 和二维码导入，以及书源分组、编辑和调试 |
+| 快速搜书 | 多书源并发搜索，结果陆续展示；重复搜索可先显示有效缓存，同书多源合并 |
+| 书架管理 | 列表、网格、分组、章节更新、换源和本机阅读进度 |
+| 阅读排版 | 字号、间距、边距、日夜主题、滚动与分页阅读、目录和书签 |
+| 本地 TXT | 导入本地文件、自定义目录规则和章节阅读 |
+| 语音朗读 | 系统朗读与 HTTP TTS 配置 |
+| 阅读工具 | 替换净化、阅读记录、时长统计和缓存管理 |
+| RSS 订阅 | 订阅源管理与内容阅读 |
+
+搜书速度是我比较在意的部分，目前做了并发调度、有效书源优先和结果缓存等优化。实际体验仍会受到网络和书源网站响应的影响。
+
+兼容阅读书源不代表所有书源都能直接使用。复杂 JavaScript、登录、验证码和 WebView 规则仍可能存在平台差异，遇到问题欢迎反馈。
+
+## 应用截图
+
+<table>
+  <tr>
+    <td align="center"><strong>书架</strong><br /><a href="docs/images/bookshelf.png"><img src="docs/images/bookshelf.png" width="230" alt="小浣熊阅读书架" /></a></td>
+    <td align="center"><strong>搜书</strong><br /><a href="docs/images/search.png"><img src="docs/images/search.png" width="230" alt="小浣熊阅读搜索结果与缓存展示" /></a></td>
+    <td align="center"><strong>书源管理</strong><br /><a href="docs/images/sources.png"><img src="docs/images/sources.png" width="230" alt="小浣熊阅读书源管理" /></a></td>
+  </tr>
+  <tr>
+    <td align="center"><strong>日间阅读</strong><br /><a href="docs/images/reader.png"><img src="docs/images/reader.png" width="230" alt="小浣熊阅读纸色主题" /></a></td>
+    <td align="center"><strong>夜间阅读</strong><br /><a href="docs/images/reader-dark.png"><img src="docs/images/reader-dark.png" width="230" alt="小浣熊阅读夜间主题" /></a></td>
+    <td align="center"><strong>我的</strong><br /><a href="docs/images/profile.png"><img src="docs/images/profile.png" width="230" alt="小浣熊阅读个人中心" /></a></td>
+  </tr>
+</table>
+
+<details>
+<summary>查看更多截图：发现、阅读统计、关于</summary>
+
+<table>
+  <tr>
+    <td align="center"><strong>发现</strong><br /><a href="docs/images/explore.png"><img src="docs/images/explore.png" width="230" alt="小浣熊阅读发现页面" /></a></td>
+    <td align="center"><strong>阅读统计</strong><br /><a href="docs/images/statistics.png"><img src="docs/images/statistics.png" width="230" alt="小浣熊阅读统计页面" /></a></td>
+    <td align="center"><strong>关于</strong><br /><a href="docs/images/about.png"><img src="docs/images/about.png" width="230" alt="小浣熊阅读关于页面" /></a></td>
+  </tr>
+</table>
+
+</details>
+
+截图使用演示书籍、书源和正文，点击可查看大图。
+
+## 开始使用
+
+1. 自行准备你有权使用的阅读书源，安装后进入「我的 → 书源管理」导入。
+2. 在书架点击搜索，输入书名或作者，打开书籍详情后开始阅读。
+3. 将书籍加入书架，方便下次继续阅读；也可以从书架直接导入本地 TXT。
+4. 在阅读页调整排版、主题、书签和朗读设置。
+
+应用支持 `legado://` 规则导入链接。来源网站改版或停止服务时，书源规则可能需要更新。
+
+## 书源说明
+
+小浣熊阅读仅提供书源解析、书籍管理和阅读功能，**不提供、内置或分发网络书源**。用户使用的书源来自网络公开分享，或由用户自行编写、导入。
+
+在线书籍正文、封面、简介及订阅内容由书源对应的第三方网站提供，版权归原作者或合法权利人所有。网络公开分享、书源可导入或内容可访问，不代表已获得内容授权。
+
+请自行核实书源和内容的来源，在获得授权或法律允许的范围内使用，遵守来源网站的使用规则，支持正版阅读。第三方网站或书源失效时，需要更新规则或更换来源。
+
+## 为什么做这个
+
+我之前一直用香色闺阁看书，也用得挺习惯。不过在自己的使用过程中，搜书等待时间一直让我比较难受。后来能用的书源越来越少，就想着干脆自己折腾一个。
+
+最开始只是打算自己用：搜书快一点，导入书源方便一点，找到书以后能舒舒服服地看下去。
+
+后来就这样边写边用、缺什么补什么，慢慢成了现在的小浣熊阅读。既然可能还有朋友有同样的需求，就把它开源出来，欢迎一起折腾。
+
+## 反馈与贡献
+
+遇到问题或有功能建议，欢迎提交 [Issue](https://github.com/Aminark/legado-ios/issues)。反馈时请附上应用版本、系统版本、设备和复现步骤；书源问题尽量提供最小规则。
+
+请先去掉日志和规则中的账号、Cookie、Token 等个人信息。欢迎提交代码、兼容用例和文档改进，具体见 [贡献指南](CONTRIBUTING.md)。
+
+## 开源许可
+
+本项目采用 **GNU GPL v3**，详见 [LICENSE](LICENSE)。
+
+第三方材料的版权与许可见 [第三方声明](THIRD_PARTY_NOTICES.md)。
+
+请遵守书源网站的使用规则和内容授权，支持正版阅读。

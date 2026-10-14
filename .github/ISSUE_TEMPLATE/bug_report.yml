@@ -1,0 +1,40 @@
+name: 问题反馈 / 书源兼容
+description: 报告小浣熊阅读的可复现问题
+title: "[Bug] "
+body:
+  - type: markdown
+    attributes:
+      value: 请先搜索已有问题。请勿上传账号、Cookie、Token、个人书架、付费内容或未经授权的完整正文。
+  - type: input
+    id: environment
+    attributes:
+      label: 应用版本、iOS 版本与设备
+      placeholder: 例如 0.1.8 / iOS 18.3.1 / iPhone 16 Pro
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: 问题模块
+      options:
+        - 书源导入或规则兼容
+        - 搜索与发现
+        - 书架与换源
+        - 阅读器与朗读
+        - 本地文件
+        - RSS
+        - 其他
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: 复现步骤、预期结果与实际结果
+      description: 搜索问题请说明启用书源数、网络、是否缓存，以及是否含 WebView / JS 规则。
+    validations:
+      required: true
+  - type: textarea
+    id: sample
+    attributes:
+      label: 最小规则、脱敏日志或截图
+      description: 优先使用虚构域名和自造响应；在线样本请确认有权公开。

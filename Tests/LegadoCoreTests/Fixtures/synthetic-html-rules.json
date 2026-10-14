@@ -1,0 +1,15 @@
+[
+  {
+    "bookSourceName": "合成 HTML 规则",
+    "bookSourceUrl": "https://fixture.invalid",
+    "ruleToc": {
+      "chapterList": "id.chapter-list.0@tag.a[-1:0]",
+      "chapterName": "text",
+      "chapterUrl": "href"
+    },
+    "ruleContent": {
+      "content": "class.chapter-body@html",
+      "replaceRegex": "##(?m)^(?:第一章|信息|{{book.durChapterTitle}}|\\(本章完\\))\\s*$"
+    }
+  }
+]

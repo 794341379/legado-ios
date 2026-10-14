@@ -1,0 +1,32 @@
+{
+  "bookSourceUrl": "https://fixture.invalid",
+  "bookSourceName": "脱敏 JS 听书源",
+  "bookSourceGroup": "兼容夹具",
+  "bookSourceType": 1,
+  "enabled": true,
+  "enabledExplore": true,
+  "searchUrl": "https://fixture.invalid/search,{\"method\":\"POST\",\"body\":{\"title\":\"searchKey\",\"page\":{{searchPage}}}}",
+  "ruleSearch": {
+    "bookList": "$.content.content",
+    "name": "$.title",
+    "author": "$.author",
+    "bookUrl": "$.id@js:java.put('bookId', result);'/toc?bookId='+result",
+    "coverUrl": "$.cover@js:var cover=JSON.parse(result);'/file/'+cover.path"
+  },
+  "ruleBookInfo": {},
+  "ruleToc": {
+    "chapterList": "$.content.content",
+    "chapterName": "$.chapterTitle",
+    "chapterUrl": "$.id@js:java.put('chapterId', result);'/audio?bookId='+java.get('bookId')+'&chapterId='+result"
+  },
+  "ruleContent": {
+    "content": "@js:result"
+  },
+  "ruleReview": {
+    "reviewUrl": "/review/{{chapterId}}",
+    "contentRule": "$.content",
+    "postTimeRule": "$.time"
+  },
+  "eventListener": false,
+  "customButton": false
+}
