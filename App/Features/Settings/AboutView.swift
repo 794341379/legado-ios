@@ -48,7 +48,7 @@ struct AboutView: View {
             } header: {
                 Text("项目与开发者")
             } footer: {
-                Text("IPA 发布后可从项目 GitHub Releases 获取，并自行签名安装。项目暂不上架 App Store，也不提供 TestFlight。")
+                Text("IPA 可从项目 GitHub Releases 获取，并自行签名安装。项目暂不上架 App Store，也不提供 TestFlight。")
             }
             Section("开源许可") {
                 NavigationLink("开源许可") { OpenSourceLicensesView() }

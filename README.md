@@ -26,7 +26,7 @@
 
 支持 **iOS / iPadOS 15.0 及以上**。
 
-**IPA 将通过 [GitHub Releases](https://github.com/Aminark/legado-ios/releases) 提供，需要自行签名安装。** 如果 Releases 中还没有安装包，说明公开版本尚未发布。
+**IPA 下载见 [GitHub Releases](https://github.com/Aminark/legado-ios/releases)，需要自行签名安装。** 请下载附件中的 `.ipa` 文件；`Source code` 是源码压缩包。
 
 目前没有付费 iOS 开发者账号，暂时无法提供 TestFlight，也暂不上架 App Store。这个项目主要是自己使用和分享，没有盈利计划。
 
