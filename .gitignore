@@ -4,6 +4,7 @@ DerivedData/
 *.xcuserstate
 xcuserdata/
 reference/
+/GITHUB_UPLOAD.local.md
 
 artifacts/
 *.xcresult/

@@ -75,3 +75,37 @@ python3 scripts/export-open-source.py /tmp/legado-ios-open-source
 ```
 
 目标目录必须尚不存在。导出后检查内容，再用独立仓库管理；`.gitignore` 不会自动清理已经跟踪的文件。
+
+## 维护应用源
+
+`docs/altstore.json` 是 AltStore Classic、SideStore 和 LiveContainer 共用的应用源，固定地址为：
+
+```text
+https://raw.githubusercontent.com/Aminark/legado-ios/main/docs/altstore.json
+```
+
+源仅列出最新正式版，同时提供 `versions` 和旧客户端使用的顶层版本字段。版本号、构建号、最低 iOS 版本和隐私权限从实际 IPA 的 `Info.plist` 读取，下载地址、发布日期和更新说明来自 GitHub Release。目前由维护者在发布正式版后手动运行生成脚本并提交源文件。
+
+1. 新版发布时，先在 Release 草稿中上传唯一的未签名 `.ipa`，再发布正式版。
+2. 下载 GitHub 标记的 latest 正式版元数据及 IPA，运行下方生成与测试命令，检查 `docs/altstore.json` 差异后提交到 `main`。
+3. 源文件发布后，客户端刷新源即可获取该版本的下载与更新入口。只提交源码或上传未发布的草稿不会更新应用源。
+
+本地生成（需要 Python 3.9+；获取 Release 元数据时使用已登录的 GitHub CLI）：
+
+```sh
+source_update_dir=$(mktemp -d)
+gh api repos/Aminark/legado-ios/releases/latest > "$source_update_dir/release.json"
+source_release_tag=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["tag_name"])' "$source_update_dir/release.json")
+gh release download "$source_release_tag" --repo Aminark/legado-ios \
+  --pattern '*.ipa' --dir "$source_update_dir"
+python3 scripts/update-altstore-source.py \
+  --ipa "$source_update_dir/legado-ios-v0.1.10-build16-unsigned.ipa" \
+  --release "$source_update_dir/release.json"
+python3 -m unittest discover -s scripts/tests -v
+```
+
+请将示例 IPA 文件名换成实际下载的附件名。脚本会核对包标识、Release 标签与 IPA 版本、文件大小，以及 Release 提供的 SHA-256（如有），避免源指向与本地检查不一致的包。当前生成器针对本项目无扩展、无额外 entitlement 的未签名 IPA；改用签名包、增加扩展或 entitlement 时，需要同步完善权限提取，生成器会拒绝带签名资源、描述文件或扩展的 IPA。
+
+发布后检查固定地址可匿名访问、图标和截图能正常加载，并下载源中 IPA 再核对大小、摘要和版本。客户端的添加源、安装、更新与签名流程需分别实测；源文件校验通过不代表已完成真机安装验证。
+
+格式说明：[AltStore 源规范](https://faq.altstore.io/developers/make-a-source)、[SideStore 源字段](https://sidestore.io/sidestore-source-types/interfaces/Source.html)、[LiveContainer 源用法](https://livecontainer.github.io/docs/guides/sources)。

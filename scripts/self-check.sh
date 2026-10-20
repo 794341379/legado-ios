@@ -7,9 +7,11 @@ cd "$workspace_dir"
 derived_data_path=${LEGADO_DERIVED_DATA_PATH:-"$workspace_dir/DerivedData"}
 source_packages_path=${LEGADO_SOURCE_PACKAGES_PATH:-"$derived_data_path/SourcePackages"}
 
-echo "[1/5] Validate bundled resources"
+echo "[1/5] Validate bundled resources and application source"
 python3 -m json.tool App/Resources/txtTocRule.json >/dev/null
 python3 -m json.tool App/Resources/httpTTS.json >/dev/null
+python3 -m json.tool docs/altstore.json >/dev/null
+python3 -m unittest discover -s scripts/tests -v
 
 echo "[2/5] Check project and Swift formatting hazards"
 plutil -lint Legado.xcodeproj/project.pbxproj >/dev/null

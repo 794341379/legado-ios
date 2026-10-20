@@ -1,0 +1,63 @@
+{
+  "name": "小浣熊阅读",
+  "identifier": "com.epiboly.legado.source",
+  "subtitle": "小浣熊阅读官方应用源",
+  "description": "小浣熊阅读的最新正式版，供 AltStore Classic、SideStore 和 LiveContainer 添加。",
+  "sourceURL": "https://raw.githubusercontent.com/Aminark/legado-ios/main/docs/altstore.json",
+  "website": "https://github.com/Aminark/legado-ios",
+  "iconURL": "https://raw.githubusercontent.com/Aminark/legado-ios/main/App/Assets.xcassets/AppIcon.appiconset/AppIcon-1024.png",
+  "tintColor": "#315C50",
+  "apps": [
+    {
+      "name": "小浣熊阅读",
+      "bundleIdentifier": "com.epiboly.legado",
+      "developerName": "Aminark",
+      "subtitle": "搜书快一点，读书舒服一点。",
+      "localizedDescription": "一款优先兼容阅读书源的开源 iOS 阅读器，支持书架、搜索、阅读排版、本地 TXT、语音朗读和 RSS。应用不提供书源或在线书库，书源需自行导入。",
+      "iconURL": "https://raw.githubusercontent.com/Aminark/legado-ios/main/App/Assets.xcassets/AppIcon.appiconset/AppIcon-1024.png",
+      "tintColor": "#315C50",
+      "category": "utilities",
+      "screenshots": [
+        {
+          "imageURL": "https://raw.githubusercontent.com/Aminark/legado-ios/main/docs/images/bookshelf.png",
+          "width": 1206,
+          "height": 2622
+        },
+        {
+          "imageURL": "https://raw.githubusercontent.com/Aminark/legado-ios/main/docs/images/search.png",
+          "width": 1206,
+          "height": 2622
+        },
+        {
+          "imageURL": "https://raw.githubusercontent.com/Aminark/legado-ios/main/docs/images/reader.png",
+          "width": 1206,
+          "height": 2622
+        }
+      ],
+      "versions": [
+        {
+          "version": "0.1.10",
+          "buildVersion": "16",
+          "date": "2026-10-20T15:34:03Z",
+          "localizedDescription": "小浣熊阅读 **0.1.10**，构建号 **16**，支持 **iOS / iPadOS 15.0 及以上**。\n\n## 更新内容\n\n- 修复书源文件选择及导入流程：支持 JSON 多选，调整文件读取权限和导入预览展示时机（#1）。\n- 支持进入书源分组查看书源、打开详情及切换启用状态。\n- 修复阅读外观中的背景图片和字体选择；限制背景图片解码尺寸，降低内存占用。\n- 完善背景图片与预设主题切换，关闭背景图时保留已选图片。\n- 修复退出后重新进入阅读器的书签状态，避免重复添加书签。\n\n## 下载安装\n\n下载附件 **`legado-ios-v0.1.10-build16-unsigned.ipa`**，使用自己的签名工具安装。支持 TrollStore 的设备可自行安装；本项目暂不提供 App Store 或 TestFlight 分发。\n\n`Source code (zip / tar.gz)` 是源码，不能直接安装。附件 `SHA256SUMS` 可用于核对 IPA 完整性。\n\n## 验证与兼容\n\n本次通过 299 项核心及页面模型测试、12 项 iOS 阅读器测试、4 项文件导入与阅读操作 UI 回归，以及模拟器构建。IPA 由本次源码重新进行 iPhoneOS Release 构建。\n\niOS 15.7 真机尚未复测。若在该系统上仍遇到文件无法选择的问题，请继续在 [Issue #1](https://github.com/Aminark/legado-ios/issues/1) 反馈。\n\n**小浣熊阅读不提供、内置或分发网络书源，也不提供在线书库；书源需自行导入。**\n",
+          "downloadURL": "https://github.com/Aminark/legado-ios/releases/download/v0.1.10/legado-ios-v0.1.10-build16-unsigned.ipa",
+          "size": 12080513,
+          "minOSVersion": "15.0"
+        }
+      ],
+      "version": "0.1.10",
+      "versionDate": "2026-10-20T15:34:03Z",
+      "versionDescription": "小浣熊阅读 **0.1.10**，构建号 **16**，支持 **iOS / iPadOS 15.0 及以上**。\n\n## 更新内容\n\n- 修复书源文件选择及导入流程：支持 JSON 多选，调整文件读取权限和导入预览展示时机（#1）。\n- 支持进入书源分组查看书源、打开详情及切换启用状态。\n- 修复阅读外观中的背景图片和字体选择；限制背景图片解码尺寸，降低内存占用。\n- 完善背景图片与预设主题切换，关闭背景图时保留已选图片。\n- 修复退出后重新进入阅读器的书签状态，避免重复添加书签。\n\n## 下载安装\n\n下载附件 **`legado-ios-v0.1.10-build16-unsigned.ipa`**，使用自己的签名工具安装。支持 TrollStore 的设备可自行安装；本项目暂不提供 App Store 或 TestFlight 分发。\n\n`Source code (zip / tar.gz)` 是源码，不能直接安装。附件 `SHA256SUMS` 可用于核对 IPA 完整性。\n\n## 验证与兼容\n\n本次通过 299 项核心及页面模型测试、12 项 iOS 阅读器测试、4 项文件导入与阅读操作 UI 回归，以及模拟器构建。IPA 由本次源码重新进行 iPhoneOS Release 构建。\n\niOS 15.7 真机尚未复测。若在该系统上仍遇到文件无法选择的问题，请继续在 [Issue #1](https://github.com/Aminark/legado-ios/issues/1) 反馈。\n\n**小浣熊阅读不提供、内置或分发网络书源，也不提供在线书库；书源需自行导入。**\n",
+      "downloadURL": "https://github.com/Aminark/legado-ios/releases/download/v0.1.10/legado-ios-v0.1.10-build16-unsigned.ipa",
+      "size": 12080513,
+      "appPermissions": {
+        "entitlements": [],
+        "privacy": {
+          "NSCameraUsageDescription": "用于扫描书源和净化规则的导入二维码。",
+          "NSPhotoLibraryAddUsageDescription": "用于保存阅读页面中的图片到照片图库。"
+        }
+      }
+    }
+  ],
+  "news": []
+}
