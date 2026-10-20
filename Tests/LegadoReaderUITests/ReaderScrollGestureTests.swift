@@ -1,7 +1,185 @@
 import XCTest
+import UIKit
 
 @MainActor
 final class ReaderScrollGestureTests: XCTestCase {
+    func testBackgroundSwitchRestoresPresetWithoutDeletingPhoto() throws {
+        try exerciseBackgroundSwitch(readingMode: "0")
+    }
+
+    func testScrollBackgroundSwitchRestoresPresetWithoutDeletingPhoto() throws {
+        try exerciseBackgroundSwitch(readingMode: "3")
+    }
+
+    private func exerciseBackgroundSwitch(readingMode: String) throws {
+        continueAfterFailure = false
+        let app = launchAppearance(readingMode: readingMode)
+        let choose = app.buttons["选择背景图片"]
+        scrollToAppearanceElement(choose, in: app)
+        app.buttons["微信读书"].tap()
+        choose.tap()
+        let photo = app.images["PXGGridLayout-Info"].firstMatch
+        XCTAssertTrue(photo.waitForExistence(timeout: 10))
+        photo.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        let cancel = app.buttons.matching(NSPredicate(format: "label IN %@", ["Cancel", "取消"])).firstMatch
+        let dismissed = expectation(for: NSPredicate { _, _ in !cancel.exists }, evaluatedWith: nil)
+        wait(for: [dismissed], timeout: 15)
+        let useBackground = app.switches["使用背景图片"]
+        scrollToAppearanceElement(useBackground, in: app)
+        XCTAssertEqual(useBackground.value as? String, "1")
+        app.buttons["完成"].tap()
+        let imageColor = try backgroundRGB(in: app)
+
+        func openAppearance() {
+            app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+            app.buttons["外观"].tap()
+            XCTAssertTrue(app.navigationBars["阅读样式"].waitForExistence(timeout: 5))
+            scrollToAppearanceElement(useBackground, in: app)
+        }
+        openAppearance()
+        attachScreenshot(app)
+        app.coordinate(withNormalizedOffset: CGVector(
+            dx: 0.25, dy: useBackground.frame.midY / app.frame.height
+        )).tap()
+        XCTAssertEqual(useBackground.value as? String, "0")
+        XCTAssertTrue(app.buttons["删除背景图片"].exists)
+        app.buttons["完成"].tap()
+        XCTAssertEqual(try backgroundRGB(in: app), [192, 237, 198])
+
+        openAppearance()
+        useBackground.tap()
+        XCTAssertEqual(useBackground.value as? String, "1")
+        app.buttons["完成"].tap()
+        XCTAssertEqual(try backgroundRGB(in: app), imageColor)
+
+        openAppearance()
+        app.buttons["预设2"].tap()
+        XCTAssertEqual(useBackground.value as? String, "0")
+        app.buttons["完成"].tap()
+        XCTAssertEqual(try backgroundRGB(in: app), [221, 192, 144])
+    }
+
+    private func backgroundRGB(in app: XCUIApplication) throws -> [Int] {
+        let image = try XCTUnwrap(app.screenshot().image.cgImage)
+        let pixel = try XCTUnwrap(image.cropping(to: CGRect(
+            x: image.width / 50, y: image.height * 28 / 100, width: 1, height: 1
+        )))
+        var bytes = [UInt8](repeating: 0, count: 4)
+        try bytes.withUnsafeMutableBytes { buffer in
+            let context = try XCTUnwrap(CGContext(
+                data: buffer.baseAddress, width: 1, height: 1, bitsPerComponent: 8,
+                bytesPerRow: 4, space: CGColorSpaceCreateDeviceRGB(),
+                bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue | CGBitmapInfo.byteOrder32Big.rawValue
+            ))
+            context.draw(pixel, in: CGRect(x: 0, y: 0, width: 1, height: 1))
+        }
+        return bytes.prefix(3).map(Int.init)
+    }
+
+    func testBackgroundPickerCanBeOpenedRepeatedly() throws {
+        continueAfterFailure = false
+        let app = launchAppearance()
+        for _ in 0..<3 {
+            let choose = app.buttons["选择背景图片"]
+            scrollToAppearanceElement(choose, in: app)
+            choose.tap()
+            let cancel = app.buttons.matching(NSPredicate(format: "label IN %@", ["Cancel", "取消"])).firstMatch
+            XCTAssertTrue(cancel.waitForExistence(timeout: 10))
+            cancel.tap()
+            XCTAssertTrue(app.navigationBars["阅读样式"].waitForExistence(timeout: 5))
+        }
+    }
+
+    func testBackgroundPhotoCanBeSelectedAndReplaced() throws {
+        try exerciseBackgroundPhotoSelection(usesLegacyUI: false)
+    }
+
+    func testLegacyBackgroundPhotoCanBeSelectedAndReplaced() throws {
+        try exerciseBackgroundPhotoSelection(usesLegacyUI: true)
+    }
+
+    private func exerciseBackgroundPhotoSelection(usesLegacyUI: Bool) throws {
+        continueAfterFailure = false
+        let app = launchAppearance(usesLegacyUI: usesLegacyUI)
+        for _ in 0..<2 {
+            let choose = app.buttons["选择背景图片"]
+            scrollToAppearanceElement(choose, in: app)
+            choose.tap()
+            let cancel = app.buttons.matching(NSPredicate(format: "label IN %@", ["Cancel", "取消"])).firstMatch
+            XCTAssertTrue(cancel.waitForExistence(timeout: 10))
+            let photo = app.images["PXGGridLayout-Info"].firstMatch
+            XCTAssertTrue(photo.waitForExistence(timeout: 5), "Seed a demo image with simctl addmedia before running this test")
+            photo.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+            let dismissed = expectation(for: NSPredicate { _, _ in !cancel.exists }, evaluatedWith: nil)
+            wait(for: [dismissed], timeout: 15)
+            XCTAssertTrue(app.navigationBars["阅读样式"].waitForExistence(timeout: 15))
+            let useBackground = app.switches["使用背景图片"]
+            scrollToAppearanceElement(useBackground, in: app)
+            XCTAssertEqual(useBackground.value as? String, "1")
+        }
+    }
+
+    func testFontPickerCanBePresentedAboveAppearanceAndReopened() throws {
+        continueAfterFailure = false
+        let app = launchAppearance()
+        for _ in 0..<2 {
+            let choose = app.buttons["选择字体文件"]
+            scrollToAppearanceElement(choose, in: app)
+            XCTAssertTrue(app.staticTexts["段落缩进"].exists)
+            choose.tap()
+            let cancel = app.buttons.matching(NSPredicate(format: "label IN %@", ["Cancel", "取消"])).firstMatch
+            XCTAssertTrue(cancel.waitForExistence(timeout: 10))
+            cancel.tap()
+            XCTAssertTrue(app.navigationBars["阅读样式"].waitForExistence(timeout: 5))
+        }
+    }
+
+    func testBookmarkSelectionSurvivesLeavingAndReenteringReader() throws {
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launchArguments = ["-uiDemo", "-pageAnim", "0", "-themeMode", "1", "-textSize", "28"]
+        app.launch()
+        let book = app.staticTexts["山海入梦来"].firstMatch
+        XCTAssertTrue(book.waitForExistence(timeout: 20))
+        book.tap()
+        XCTAssertTrue(app.textViews["reader.text"].waitForExistence(timeout: 20))
+        app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        let bookmark = app.buttons["书签"]
+        XCTAssertTrue(bookmark.waitForExistence(timeout: 5))
+        XCTAssertEqual(bookmark.value as? String, "添加当前位置")
+        bookmark.tap()
+        app.buttons["返回"].tap()
+        XCTAssertTrue(book.waitForExistence(timeout: 10))
+        book.tap()
+        XCTAssertTrue(app.textViews["reader.text"].waitForExistence(timeout: 10))
+        app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        XCTAssertTrue(bookmark.waitForExistence(timeout: 5))
+        XCTAssertEqual(bookmark.value as? String, "已添加")
+        app.buttons["更多"].tap()
+        app.buttons["书签列表"].tap()
+        XCTAssertTrue(app.navigationBars["书签"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["第一章 · 雨夜"].firstMatch.exists)
+    }
+
+    private func launchAppearance(readingMode: String = "0", usesLegacyUI: Bool = false) -> XCUIApplication {
+        let app = XCUIApplication()
+        app.launchArguments = ["-uiDemo", "-uiDemoReader", "-uiDemoReaderStyle", "-pageAnim", readingMode, "-themeMode", "1", "-textFont", ""]
+        if usesLegacyUI { app.launchArguments.append("-uiLegacyCompatibility") }
+        app.launch()
+        XCTAssertTrue(app.navigationBars["阅读样式"].waitForExistence(timeout: 20))
+        return app
+    }
+
+    private func scrollToAppearanceElement(_ element: XCUIElement, in app: XCUIApplication) {
+        for _ in 0..<12 {
+            if element.exists && element.isHittable { return }
+            let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.88))
+            let end = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.72))
+            start.press(forDuration: 0.05, thenDragTo: end)
+        }
+        XCTAssertTrue(element.exists && element.isHittable)
+    }
+
     func testFailedChaptersAllowRetryMenuAndSourceSwitchInBothReadingModes() throws {
         continueAfterFailure = false
         for mode in ["3", "0"] {

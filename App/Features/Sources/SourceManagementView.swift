@@ -5,6 +5,8 @@ import UniformTypeIdentifiers
 struct SourceManagementView: View {
     @EnvironmentObject private var library: SourceLibraryModel
     @State private var showsImporter = false
+    @State private var pickedImportFiles: [SourceImportFile] = []
+    @State private var importPickerHasDismissed = true
     @State private var showsNewSource = false
     @State private var showsQRImporter = false
     @State private var showsTextImporter = false
@@ -58,7 +60,7 @@ struct SourceManagementView: View {
                 } description: {
                     Text("新建书源，或从文件、链接、JSON、二维码导入。")
                 } actions: {
-                    Button("导入书源") { showsImporter = true }
+                    Button("导入书源", action: presentFileImporter)
                         .buttonStyle(.borderedProminent)
                 }
             } else {
@@ -142,7 +144,7 @@ struct SourceManagementView: View {
                 Menu("更多", systemImage: "ellipsis.circle") {
                     Button("新建书源", systemImage: "plus") { showsNewSource = true }
                     Button("二维码导入", systemImage: "qrcode.viewfinder") { showsQRImporter = true }
-                    Button("从文件导入", systemImage: "doc.badge.plus") { showsImporter = true }
+                    Button("从文件导入", systemImage: "doc.badge.plus", action: presentFileImporter)
                     Button("URL 或粘贴 JSON", systemImage: "link.badge.plus") { showsTextImporter = true }
                     Divider()
                     NavigationLink {
@@ -206,22 +208,69 @@ struct SourceManagementView: View {
         .sheet(isPresented: $showsBatchGroups) {
             SourceBatchGroupView(sourceIDs: selectedSourceIDs).environmentObject(library)
         }
-        .fileImporter(
-            isPresented: $showsImporter,
-            allowedContentTypes: [.item],
-            allowsMultipleSelection: false
-        ) { result in
-            switch result {
-            case .success(let urls):
-                let files = urls.filter { !$0.hasDirectoryPath }
-                if files.isEmpty {
-                    library.notice = .init(kind: .error, title: "无法选择文件", detail: "请选择书源 JSON 文件，而不是文件夹。")
-                } else {
-                    Task { await library.previewFiles(files) }
-                }
-            case .failure(let error):
-                library.notice = .init(kind: .error, title: "无法选择文件", detail: error.localizedDescription)
+        .sheet(isPresented: $showsImporter, onDismiss: {
+            importPickerHasDismissed = true
+            previewPickedFilesWhenReady()
+        }) {
+            SourceFileImportPicker { files in
+                pickedImportFiles = files
+                showsImporter = false
+                previewPickedFilesWhenReady()
+            } onCancel: {
+                showsImporter = false
             }
+        }
+    }
+
+    private func presentFileImporter() {
+        pickedImportFiles = []
+        importPickerHasDismissed = false
+        showsImporter = true
+    }
+
+    private func previewPickedFilesWhenReady() {
+        // Import-copy mode can dismiss before returning URLs. Other providers
+        // return URLs first, so wait for both events instead of assuming order.
+        guard importPickerHasDismissed, !pickedImportFiles.isEmpty else { return }
+        let files = pickedImportFiles
+        pickedImportFiles = []
+        Task { await library.previewPickedFiles(files) }
+    }
+}
+
+private struct SourceFileImportPicker: UIViewControllerRepresentable {
+    let onPick: @MainActor ([SourceImportFile]) -> Void
+    let onCancel: @MainActor () -> Void
+
+    func makeCoordinator() -> Coordinator { Coordinator(parent: self) }
+
+    func makeUIViewController(context: Context) -> UIDocumentPickerViewController {
+        // Ask the provider to import copies, including JSON files whose provider
+        // does not support opening documents in place. Multi-select gives Files
+        // an explicit confirmation action for the selected files.
+        let picker = UIDocumentPickerViewController(forOpeningContentTypes: [.item], asCopy: true)
+        picker.allowsMultipleSelection = true
+        picker.shouldShowFileExtensions = true
+        picker.delegate = context.coordinator
+        return picker
+    }
+
+    func updateUIViewController(_ controller: UIDocumentPickerViewController, context: Context) {}
+
+    @MainActor
+    final class Coordinator: NSObject, UIDocumentPickerDelegate {
+        private let parent: SourceFileImportPicker
+
+        init(parent: SourceFileImportPicker) { self.parent = parent }
+
+        func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
+            parent.onCancel()
+        }
+
+        func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
+            // Hold the picker grants before dismissing, until the model has
+            // finished its coordinated background reads.
+            parent.onPick(urls.map { SourceImportFile(url: $0) })
         }
     }
 }
@@ -337,16 +386,22 @@ private struct SourceGroupManagerView: View {
                         }
                         .disabled(BookSource.parseGroups(newGroup).isEmpty)
                     }
-                    Text("新分组会分配给当前未分组书源，与 Legado 的分组管理行为一致。")
+                    Text("添加后，所有未分组的书源都会加入该分组。")
                         .font(.caption).foregroundStyle(.secondary)
                 }
-                Section("已有分组") {
+                Section {
                     ForEach(library.groups, id: \.self) { group in
                         HStack {
-                            Label(group, systemImage: "folder.fill")
-                            Spacer()
-                            Text("\(library.sources.filter { $0.hasGroup(group) }.count)")
-                                .foregroundStyle(.secondary)
+                            NavigationLink {
+                                SourceGroupContentsView(group: group)
+                            } label: {
+                                HStack {
+                                    Label(group, systemImage: "folder.fill")
+                                    Spacer()
+                                    Text("\(library.sources.filter { $0.hasGroup(group) }.count) 个书源")
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
                             Menu {
                                 Button("重命名", systemImage: "pencil") {
                                     renaming = group
@@ -356,8 +411,14 @@ private struct SourceGroupManagerView: View {
                                     Task { await library.deleteGroup(group) }
                                 }
                             } label: { Image(systemName: "ellipsis.circle") }
+                            .buttonStyle(.borderless)
+                            .accessibilityLabel("\(group)分组操作")
                         }
                     }
+                } header: {
+                    Text("已有分组")
+                } footer: {
+                    Text("点击分组可查看其中的书源。")
                 }
             }
             .navigationTitle("书源分组")
@@ -375,6 +436,42 @@ private struct SourceGroupManagerView: View {
                 }
             }
         }
+    }
+}
+
+private struct SourceGroupContentsView: View {
+    @EnvironmentObject private var library: SourceLibraryModel
+    let group: String
+
+    private var sources: [BookSource] {
+        library.sources.filter { $0.hasGroup(group) }
+    }
+
+    var body: some View {
+        List {
+            Section {
+                ForEach(sources) { source in
+                    NavigationLink {
+                        SourceDetailView(source: source)
+                    } label: {
+                        SourceRow(source: source) { enabled in
+                            Task { await library.setEnabled(enabled, for: source.id) }
+                        }
+                    }
+                }
+                if sources.isEmpty {
+                    Text("该分组暂无书源")
+                        .foregroundStyle(.secondary)
+                }
+            } header: {
+                Text("\(sources.count) 个书源")
+            }
+        }
+        .listStyle(.insetGrouped)
+        .readingScrollContentBackgroundHidden()
+        .background(ReadingTheme.groupedCanvas)
+        .navigationTitle(group)
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 

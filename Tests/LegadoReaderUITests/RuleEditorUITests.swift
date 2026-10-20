@@ -2,6 +2,68 @@ import XCTest
 
 @MainActor
 final class RuleEditorUITests: XCTestCase {
+    func testJSONFilePickerOffersOpenAndImportsSelectedFiles() throws {
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launchArguments = ["-uiDemo", "-uiDemoTab", "sources"]
+        app.launch()
+        XCTAssertTrue(app.navigationBars["书源"].waitForExistence(timeout: 20))
+        app.buttons["更多"].firstMatch.tap()
+        app.buttons["从文件导入"].tap()
+        let cancel = app.buttons.matching(NSPredicate(format: "label IN %@", ["Cancel", "取消"])).firstMatch
+        XCTAssertTrue(cancel.waitForExistence(timeout: 10))
+        cancel.tap()
+        let pickerClosed = expectation(for: NSPredicate { _, _ in
+            !cancel.exists && app.navigationBars["书源"].buttons["更多"].isHittable
+        }, evaluatedWith: nil)
+        wait(for: [pickerClosed], timeout: 10)
+        app.buttons["更多"].firstMatch.tap()
+        app.buttons["从文件导入"].tap()
+        XCTAssertTrue(cancel.waitForExistence(timeout: 10))
+
+        let json = app.descendants(matching: .any).matching(NSPredicate(format: "label BEGINSWITH %@", "JSON-Source")).firstMatch
+        let fixtures = app.descendants(matching: .any).matching(NSPredicate(format: "label BEGINSWITH %@", "书源导入测试")).firstMatch
+        if !json.waitForExistence(timeout: 3) {
+            if !fixtures.exists {
+                let browse = app.buttons.matching(NSPredicate(format: "label IN %@", ["Browse", "浏览", "Locations", "位置"])).firstMatch
+                if browse.exists { browse.tap() }
+                if !fixtures.waitForExistence(timeout: 2) {
+                    let local = app.descendants(matching: .any).matching(NSPredicate(
+                        format: "label CONTAINS %@ OR label CONTAINS %@ OR label == %@", "我的 iPhone", "我的iPhone", "On My iPhone"
+                    )).firstMatch
+                    if !local.waitForExistence(timeout: 5) { print("[SourceFilePicker] \(app.debugDescription)") }
+                    XCTAssertTrue(local.exists)
+                    local.tap()
+                }
+            }
+            XCTAssertTrue(fixtures.waitForExistence(timeout: 10), "Run sh scripts/prepare-source-import-fixture.sh <simulator-UUID> before this test")
+            fixtures.tap()
+        }
+        XCTAssertTrue(json.waitForExistence(timeout: 10))
+        json.tap()
+        let uppercase = app.descendants(matching: .any).matching(NSPredicate(format: "label BEGINSWITH %@", "JSON-Uppercase")).firstMatch
+        XCTAssertTrue(uppercase.waitForExistence(timeout: 5))
+        uppercase.tap()
+        let open = app.buttons.matching(NSPredicate(format: "label IN %@", ["Open", "打开", "Import", "导入"])).firstMatch
+        XCTAssertTrue(open.waitForExistence(timeout: 5))
+        XCTAssertTrue(open.isEnabled)
+        attach(app, name: "JSON files selected with Open available")
+        open.tap()
+
+        let reviewAppeared = app.navigationBars["书源导入预检"].waitForExistence(timeout: 15)
+        if !reviewAppeared {
+            print("[SourceFilePickerAfterOpen] \(app.debugDescription)")
+            attach(app, name: "File picker after Open")
+        }
+        XCTAssertTrue(reviewAppeared)
+        XCTAssertTrue(app.buttons["导入"].isEnabled)
+        attach(app, name: "JSON import review after file picker dismissal")
+        app.buttons["导入"].tap()
+        if app.alerts.firstMatch.waitForExistence(timeout: 5) { app.alerts.buttons["好"].tap() }
+        XCTAssertTrue(app.staticTexts["文件导入 JSON 测试"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts["文件导入大写扩展名测试"].exists)
+    }
+
     func testSourceFormJSONSwitchKeepsHighlightedTextAndSaves() throws {
         try exerciseSourceEditor(usesLegacyUI: false)
     }

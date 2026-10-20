@@ -4,6 +4,36 @@ import LegadoCore
 import Foundation
 import SwiftUI
 
+final class SourceImportFile: @unchecked Sendable {
+    let url: URL
+    private let hasSecurityScope: Bool
+
+    init(url: URL) {
+        self.url = url
+        hasSecurityScope = url.startAccessingSecurityScopedResource()
+    }
+
+    deinit {
+        if hasSecurityScope { url.stopAccessingSecurityScopedResource() }
+    }
+
+    func read() throws -> Data {
+        var coordinationError: NSError?
+        var result: Result<Data, Error>?
+        NSFileCoordinator().coordinate(readingItemAt: url, options: [], error: &coordinationError) { readableURL in
+            result = Result {
+                guard try readableURL.resourceValues(forKeys: [.isDirectoryKey]).isDirectory != true else {
+                    throw BookSourceImportError.invalidDocument("请选择书源 JSON 文件，而不是文件夹。")
+                }
+                return try Data(contentsOf: readableURL)
+            }
+        }
+        if let coordinationError { throw coordinationError }
+        guard let result else { throw CocoaError(.fileReadUnknown) }
+        return try result.get()
+    }
+}
+
 @MainActor
 final class SourceLibraryModel: ObservableObject {
     @Published private(set) var sources: [BookSource] = []
@@ -168,16 +198,18 @@ final class SourceLibraryModel: ObservableObject {
     }
 
     func previewFiles(_ urls: [URL]) async {
+        await previewPickedFiles(urls.map { SourceImportFile(url: $0) })
+    }
+
+    func previewPickedFiles(_ files: [SourceImportFile]) async {
         isWorking = true
         defer { isWorking = false }
         do {
             var incoming: [String: BookSource] = [:]
             var invalidItems: [PendingImport.InvalidItem] = []
-            for url in urls {
-                let granted = url.startAccessingSecurityScopedResource()
-                defer { if granted { url.stopAccessingSecurityScopedResource() } }
+            for file in files {
                 let data = try await Task.detached(priority: .userInitiated) { [importer] in
-                    try importer.normalizedData(Data(contentsOf: url))
+                    try importer.normalizedData(file.read())
                 }.value
                 var budget = 100
                 let batch = try await resolveImport(String(decoding: data, as: UTF8.self), depth: 0, visited: [], budget: &budget)
@@ -186,10 +218,6 @@ final class SourceLibraryModel: ObservableObject {
                     incoming[source.id] = source
                 }
             }
-            // UIDocumentPicker is still dismissing when its completion runs.
-            // Presenting the review sheet in that same frame is ignored by
-            // SwiftUI, so stage it after the picker has left the hierarchy.
-            try? await Task.sleep(nanoseconds: 300_000_000)
             stage(Array(incoming.values), invalidItems: invalidItems)
         } catch {
             notice = .init(kind: .error, title: "书源导入失败", detail: error.localizedDescription)

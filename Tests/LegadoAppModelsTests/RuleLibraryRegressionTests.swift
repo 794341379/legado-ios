@@ -25,6 +25,51 @@ private actor ImportFixtureTransport: HTTPTransport {
 
 @MainActor
 struct RuleLibraryRegressionTests {
+    @Test func pickedJSONFilesAreReadTogetherAndReviewedBeforeImport() async throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let inputs = [
+            ("书源.json", #"{"bookSourceUrl":"https://picked-json.test","bookSourceName":"JSON 书源"}"#),
+            ("大写扩展名.JSON", #"[{"bookSourceUrl":"https://picked-uppercase.test","bookSourceName":"大写扩展名"}]"#),
+            ("书源.txt", #"{"bookSourceUrl":"https://picked-text.test","bookSourceName":"文本扩展名"}"#)
+        ]
+        let files = try inputs.map { name, content in
+            let url = directory.appendingPathComponent(name)
+            try Data(content.utf8).write(to: url)
+            return SourceImportFile(url: url)
+        }
+        let model = SourceLibraryModel.demo(sources: [])
+
+        await model.previewPickedFiles(files)
+
+        #expect(model.notice == nil)
+        #expect(!model.isWorking)
+        #expect(model.pendingImport?.validCount == 3)
+        #expect(model.sources.isEmpty)
+        let selectedIDs = Set(try #require(model.pendingImport).items.map(\.id))
+        await model.commitPendingImport(selectedIDs: selectedIDs, keepOriginalName: false, keepOriginalGroup: false,
+                                        keepOriginalEnabled: false, customGroup: nil, addCustomGroup: true)
+        #expect(model.sources.count == 3)
+        #expect(model.pendingImport == nil)
+    }
+
+    @Test func missingOrDirectoryImportReportsFailureWithoutChangingSources() async throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let original = BookSource(bookSourceUrl: "https://existing-source.test", bookSourceName: "原有书源")
+        for url in [directory, directory.appendingPathComponent("missing.json")] {
+            let model = SourceLibraryModel.demo(sources: [original])
+            await model.load()
+            await model.previewFiles([url])
+            #expect(model.notice?.kind == .error)
+            #expect(model.pendingImport == nil)
+            #expect(model.sources == [original])
+            #expect(!model.isWorking)
+        }
+    }
+
     @Test func largeImportKeepsTheMainActorResponsive() async throws {
         let comment = String(repeating: "规则说明", count: 1_024)
         let entries = (0..<1_000).map { index in

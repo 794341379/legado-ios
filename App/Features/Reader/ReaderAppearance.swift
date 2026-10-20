@@ -1,4 +1,5 @@
 import CoreText
+import ImageIO
 import SwiftUI
 import UIKit
 
@@ -54,23 +55,41 @@ private extension UIColor {
 }
 
 enum ReaderBackgroundStore {
+    static let maximumPixelSize = 2560
+
     static var url: URL {
         FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("Legado/reader-background.jpg")
     }
 
-    static func load() -> UIImage? {
-        guard let data = try? Data(contentsOf: url) else { return nil }
-        return UIImage(data: data)
+    static func load(from source: URL = url) -> UIImage? {
+        guard let data = try? Data(contentsOf: source, options: .mappedIfSafe) else { return nil }
+        return try? downsample(data)
     }
 
-    static func save(_ data: Data) throws -> UIImage {
-        guard let image = UIImage(data: data), let encoded = image.jpegData(compressionQuality: 0.9) else {
+    static func save(_ data: Data, to target: URL = url) throws -> UIImage {
+        let image = try downsample(data)
+        guard let encoded = image.jpegData(compressionQuality: 0.9) else {
             throw CocoaError(.fileReadCorruptFile)
         }
-        try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
-        try encoded.write(to: url, options: .atomic)
+        try FileManager.default.createDirectory(at: target.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try encoded.write(to: target, options: .atomic)
         return image
+    }
+
+    private static func downsample(_ data: Data) throws -> UIImage {
+        // Decode only the size used by the reader, including backgrounds saved
+        // by older versions. Full-resolution camera photos can exhaust memory.
+        guard let source = CGImageSourceCreateWithData(data as CFData, [kCGImageSourceShouldCache: false] as CFDictionary),
+              let image = CGImageSourceCreateThumbnailAtIndex(source, 0, [
+                kCGImageSourceCreateThumbnailFromImageAlways: true,
+                kCGImageSourceCreateThumbnailWithTransform: true,
+                kCGImageSourceShouldCacheImmediately: true,
+                kCGImageSourceThumbnailMaxPixelSize: maximumPixelSize
+              ] as CFDictionary) else {
+            throw CocoaError(.fileReadCorruptFile)
+        }
+        return UIImage(cgImage: image)
     }
 
     static func remove() { try? FileManager.default.removeItem(at: url) }

@@ -207,6 +207,30 @@ struct ReaderRegressionTests {
         #expect(bookmark.resolvedChapterIndex(in: chapters) == nil)
     }
 
+    @Test func bookmarkSelectionUsesSavedPositionAndCurrentPageAfterReopening() {
+        let book = Book(bookUrl: "demo://bookmarks", name: "书", author: "作者")
+        let chapters = (0..<2).map { BookChapter(url: "demo://\($0)", title: "第\($0)章", bookUrl: book.bookUrl, index: $0) }
+        var saved = Bookmark(time: 1, bookName: book.name, bookAuthor: book.author)
+        saved.chapterIndex = 0
+        saved.chapterName = chapters[0].title
+        saved.chapterPosition = 40
+        var otherBook = saved
+        otherBook.bookAuthor = "其他作者"
+        var otherChapter = saved
+        otherChapter.chapterIndex = 1
+        otherChapter.chapterName = chapters[1].title
+        let bookmarks = [saved, otherBook, otherChapter]
+        let reopened = ReaderViewModel(demoBook: book, chapters: chapters, initialIndex: 0, content: "正文")
+
+        #expect(reopened.bookmarks(at: 40, in: bookmarks) == [saved])
+        #expect(reopened.bookmarks(at: 0, in: bookmarks, pageRange: NSRange(location: 0, length: 80)) == [saved])
+        #expect(reopened.bookmarks(at: 80, in: bookmarks, pageRange: NSRange(location: 80, length: 80)).isEmpty)
+        #expect(reopened.bookmarks(at: 41, in: bookmarks).isEmpty)
+        #expect(reopened.bookmarks(at: 40, in: []).isEmpty)
+        reopened.select(index: 1)
+        #expect(reopened.bookmarks(at: 40, in: bookmarks) == [otherChapter])
+    }
+
     @Test func continuousReadingExtendsPastThreeChaptersWithoutNavigating() async {
         let book = Book(bookUrl: "demo://continuous", name: "书")
         let chapters = (0..<20).map { BookChapter(url: "demo://\($0)", title: "第\($0)章", bookUrl: book.bookUrl, index: $0) }

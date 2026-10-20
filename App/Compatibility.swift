@@ -127,20 +127,37 @@ struct ReadingPhotoPicker<Label: View>: View {
 
     var body: some View {
         Button { isPresented = true } label: { label }
-            .sheet(isPresented: $isPresented) {
-                ReadingPhotoPickerController { result in
-                    isPresented = false
-                    guard let result else { return }
-                    switch result {
-                    case .success(let data): onData(data)
-                    case .failure(let error): onError(error)
-                    }
-                }
-            }
+            .readingPhotoPicker(isPresented: $isPresented, onData: onData, onError: onError)
     }
 }
 
-private struct ReadingPhotoPickerController: UIViewControllerRepresentable {
+private struct ReadingPhotoPickerModifier: ViewModifier {
+    @Binding var isPresented: Bool
+    let onData: (Data) -> Void
+    let onError: (Error) -> Void
+    @State private var pendingResult: Result<Data, Error>?
+
+    func body(content: Content) -> some View {
+        content.sheet(isPresented: $isPresented, onDismiss: {
+            let result = pendingResult
+            pendingResult = nil
+            switch result {
+            case .success(let data): onData(data)
+            case .failure(let error): onError(error)
+            case nil: break
+            }
+        }) {
+            ReadingPhotoPickerController { result in
+                // Apply changes after the picker finishes dismissing, so a
+                // Form update cannot remove its presenter mid-transition.
+                pendingResult = result
+                isPresented = false
+            }
+        }
+    }
+}
+
+struct ReadingPhotoPickerController: UIViewControllerRepresentable {
     let onResult: @MainActor (Result<Data, Error>?) -> Void
 
     func makeCoordinator() -> Coordinator { Coordinator(onResult: onResult) }
@@ -166,14 +183,25 @@ private struct ReadingPhotoPickerController: UIViewControllerRepresentable {
 
         func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
             guard let provider = results.first?.itemProvider else { onResult(nil); return }
+            loadImage(from: provider)
+        }
+
+        func loadImage(from provider: NSItemProvider) {
             let identifier = provider.registeredTypeIdentifiers.first {
                 UTType($0)?.conforms(to: .image) == true
             } ?? UTType.image.identifier
-            provider.loadDataRepresentation(forTypeIdentifier: identifier) { [weak self] data, error in
-                Task { @MainActor in
-                    if let data { self?.onResult(.success(data)) }
-                    else { self?.onResult(.failure(error ?? CocoaError(.fileReadCorruptFile))) }
-                }
+            provider.loadDataRepresentation(forTypeIdentifier: identifier, completionHandler: didLoadImageData)
+        }
+
+        // Photos calls back on NSItemProvider-callback-queue. A method reference
+        // preserves explicit nonisolation in optimized device builds, whereas a
+        // closure here can infer MainActor and assert before reaching the Task.
+        nonisolated private func didLoadImageData(_ data: Data?, _ error: (any Error)?) {
+            let result: Result<Data, Error>
+            if let data { result = .success(data) }
+            else { result = .failure(error ?? CocoaError(.fileReadCorruptFile)) }
+            Task { @MainActor [weak self] in
+                self?.onResult(result)
             }
         }
     }
@@ -182,6 +210,14 @@ private struct ReadingPhotoPickerController: UIViewControllerRepresentable {
 enum ReadingSheetDetent { case medium, large }
 
 extension View {
+    func readingPhotoPicker(
+        isPresented: Binding<Bool>,
+        onData: @escaping (Data) -> Void,
+        onError: @escaping (Error) -> Void
+    ) -> some View {
+        modifier(ReadingPhotoPickerModifier(isPresented: isPresented, onData: onData, onError: onError))
+    }
+
     @ViewBuilder
     func readingNumericTransition() -> some View {
         if #available(iOS 16.0, *) { contentTransition(.numericText()) }

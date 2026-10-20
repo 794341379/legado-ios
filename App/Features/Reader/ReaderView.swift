@@ -36,6 +36,7 @@ struct ReaderView: View {
     @State private var contentEditError: String?
     @State private var backgroundImage: UIImage?
     @State private var backgroundError: String?
+    @State private var showsBackgroundPicker = false
     @State private var showsFontImporter = false
     @State private var fontError: String?
     @State private var readerJumpPosition: Int?
@@ -55,7 +56,7 @@ struct ReaderView: View {
     @State private var progressSaveGeneration = 0
     @State private var speechStartGeneration = 0
     @State private var speechTimerRemaining = 0
-    @State private var bookmarkSaved = false
+    @State private var isSavingBookmark = false
     @ScaledMetric(relativeTo: .body) private var toolbarIconSize = 21
     @AppStorage("textSize") private var fontSize = 20.0
     @AppStorage("letterSpacing") private var letterSpacing = 0.1
@@ -282,19 +283,6 @@ struct ReaderView: View {
         .sheet(isPresented: $showsReaderSettings) { readerSettings }
         .sheet(isPresented: $showsClickActionSettings) { clickActionSettings }
         .sheet(isPresented: $showsContentEditor) { contentEditor }
-        .fileImporter(
-            isPresented: $showsFontImporter,
-            allowedContentTypes: [.font, .data],
-            allowsMultipleSelection: false
-        ) { result in
-            fontError = nil
-            do {
-                guard let source = try result.get().first else { return }
-                fontPath = try ReaderFontStore.install(from: source)
-            } catch {
-                fontError = error.localizedDescription
-            }
-        }
         .task(id: model.chapterLoadGeneration) {
             isWaitingForNextChapter = false
             isWaitingForPreviousChapter = false
@@ -413,7 +401,7 @@ struct ReaderView: View {
         .background {
             ZStack {
                 backgroundColor
-                if themeMode != "3", useBackgroundImage, let backgroundImage {
+                if let backgroundImage = activeBackgroundImage {
                     Image(uiImage: backgroundImage)
                         .resizable()
                         .scaledToFill()
@@ -577,7 +565,7 @@ struct ReaderView: View {
             pageAnimation: pageAnimation,
             isEInkMode: themeMode == "3",
             clickActions: clickActions,
-            backgroundColor: themeMode != "3" && useBackgroundImage && backgroundImage != nil ? .clear : resolvedStyle.background,
+            backgroundColor: activeBackgroundImage == nil ? resolvedStyle.background : .clear,
             foregroundColor: resolvedStyle.foreground,
             requestedPosition: pageAnimation == 3 ? readerPosition : model.requestedPosition,
             jumpPosition: readerJumpPosition,
@@ -676,6 +664,10 @@ struct ReaderView: View {
     private func continuousPosition(_ position: Int, content: String) -> Int {
         let length = content.isEmpty ? 80 : content.utf16.count
         return min(max(position, 0), max(length - 1, 0))
+    }
+
+    private var activeBackgroundImage: UIImage? {
+        themeMode != "3" && useBackgroundImage ? backgroundImage : nil
     }
 
     private var backgroundColor: Color {
@@ -822,6 +814,7 @@ struct ReaderView: View {
                 addBookmark()
             }
             .accessibilityValue(bookmarkSaved ? "已添加" : "添加当前位置")
+            .disabled(isSavingBookmark)
             readerMoreMenu
         }
         .foregroundStyle(readerChromeTint)
@@ -1160,11 +1153,13 @@ struct ReaderView: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 12) {
                             ForEach(ReaderStylePreset.legadoDefaults) { preset in
+                                let isSelected = resolvedStyle.id == preset.id && activeBackgroundImage == nil
                                 Button {
+                                    useBackgroundImage = false
                                     theme = preset.id
                                 } label: {
                                     VStack(spacing: 6) {
-                                        RoundedRectangle(cornerRadius: 7)
+                                        RoundedRectangle(cornerRadius: 10, style: .continuous)
                                             .fill(Color(uiColor: preset.background))
                                             .frame(width: 54, height: 72)
                                             .overlay {
@@ -1173,31 +1168,46 @@ struct ReaderView: View {
                                                     .foregroundStyle(Color(uiColor: preset.foreground))
                                             }
                                             .overlay {
-                                                RoundedRectangle(cornerRadius: 7)
-                                                    .stroke(resolvedStyle.id == preset.id ? ReadingTheme.accent : Color.secondary, lineWidth: resolvedStyle.id == preset.id ? 3 : 1)
+                                                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                                    .strokeBorder(
+                                                        Color(uiColor: preset.foreground).opacity(isSelected ? 0.4 : 0.12),
+                                                        lineWidth: isSelected ? 1.25 : 0.75
+                                                    )
                                             }
-                                        Text(preset.name).font(.caption2).foregroundStyle(.primary)
+                                            .overlay(alignment: .topTrailing) {
+                                                if isSelected {
+                                                    Image(systemName: "checkmark")
+                                                        .font(.system(size: 10, weight: .semibold))
+                                                        .foregroundStyle(Color(uiColor: preset.foreground))
+                                                        .padding(6)
+                                                }
+                                            }
+                                        Text(preset.name)
+                                            .font(.caption2)
+                                            .foregroundStyle(isSelected ? .primary : .secondary)
                                     }
                                 }
                                 .buttonStyle(.plain)
+                                .accessibilityLabel(preset.name)
+                                .accessibilityAddTraits(isSelected ? .isSelected : [])
                             }
                         }
                     }
-                    ReadingPhotoPicker { data in
+                    Button("选择背景图片", systemImage: "photo") {
                         backgroundError = nil
-                        do {
-                            backgroundImage = try ReaderBackgroundStore.save(data)
-                            useBackgroundImage = true
-                        } catch {
-                            backgroundError = error.localizedDescription
-                        }
-                    } onError: { error in
-                        backgroundError = error.localizedDescription
-                    } label: {
-                        Label("选择背景图片", systemImage: "photo")
+                        showsBackgroundPicker = true
                     }
                     if backgroundImage != nil {
-                        Toggle("使用背景图片", isOn: $useBackgroundImage)
+                        HStack(spacing: 0) {
+                            Text("使用背景图片")
+                                .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+                                .contentShape(Rectangle())
+                                .onTapGesture { useBackgroundImage.toggle() }
+                                .accessibilityHidden(true)
+                            Toggle("使用背景图片", isOn: $useBackgroundImage)
+                                .labelsHidden()
+                                .fixedSize()
+                        }
                         Button("删除背景图片", systemImage: "trash", role: .destructive) {
                             ReaderBackgroundStore.remove()
                             backgroundImage = nil
@@ -1219,8 +1229,15 @@ struct ReaderView: View {
                         Text("粗体").tag(1)
                         Text("细体").tag(2)
                     }
-                    TextField("段落缩进字符", text: $paragraphIndent)
-                        .textInputAutocapitalization(.never)
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("段落缩进")
+                        TextField("请输入缩进字符", text: $paragraphIndent)
+                            .textInputAutocapitalization(.never)
+                            .accessibilityLabel("段落缩进字符")
+                        Text("控制每段开头的缩进，默认两个全角空格；清空后不缩进。")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
                     Button(fontPath.isEmpty ? "选择字体文件" : "更换字体文件", systemImage: "textformat") {
                         showsFontImporter = true
                     }
@@ -1333,6 +1350,30 @@ struct ReaderView: View {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("完成") { showsStyleControls = false }
                 }
+            }
+        }
+        .readingPhotoPicker(isPresented: $showsBackgroundPicker) { data in
+            backgroundError = nil
+            do {
+                backgroundImage = try ReaderBackgroundStore.save(data)
+                useBackgroundImage = true
+            } catch {
+                backgroundError = error.localizedDescription
+            }
+        } onError: { error in
+            backgroundError = error.localizedDescription
+        }
+        .fileImporter(
+            isPresented: $showsFontImporter,
+            allowedContentTypes: [.font, .data],
+            allowsMultipleSelection: false
+        ) { result in
+            fontError = nil
+            do {
+                guard let source = try result.get().first else { return }
+                fontPath = try ReaderFontStore.install(from: source)
+            } catch {
+                fontError = error.localizedDescription
             }
         }
         .readingPresentationDetents([.medium])
@@ -1866,18 +1907,26 @@ struct ReaderView: View {
         }
     }
 
+    private var bookmarkSaved: Bool {
+        let page = currentPage - 1
+        let range = pageAnimation != 3 && readerPageRanges.indices.contains(page) ? readerPageRanges[page] : nil
+        return !model.bookmarks(at: readerPosition, in: activity.bookmarks, pageRange: range).isEmpty
+    }
+
     private func addBookmark() {
-        guard let chapter = model.currentChapter else { return }
-        bookmarkSaved = true
+        guard !isSavingBookmark, !bookmarkSaved, let chapter = model.currentChapter else { return }
+        let currentBook = book
+        let position = readerPosition
+        let content = model.content
+        isSavingBookmark = true
         Task {
+            defer { isSavingBookmark = false }
             await activity.addBookmark(
-                book: book,
+                book: currentBook,
                 chapter: chapter,
-                position: readerPosition,
-                content: model.content
+                position: position,
+                content: content
             )
-            try? await Task.sleep(nanoseconds: 1_200_000_000)
-            bookmarkSaved = false
         }
     }
 

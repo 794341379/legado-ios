@@ -59,6 +59,18 @@ final class ReaderViewModel: ObservableObject {
     private var sourceCacheNeedsInvalidation = false
     private var pendingSourceContent: ChapterContentReport?
 
+    func bookmarks(at position: Int, in bookmarks: [Bookmark], pageRange: NSRange? = nil) -> [Bookmark] {
+        bookmarks.filter { bookmark in
+            guard bookmark.bookName == book.name, bookmark.bookAuthor == book.author,
+                  bookmark.resolvedChapterIndex(in: chapters) == currentIndex else { return false }
+            if bookmark.chapterPosition == max(position, 0) { return true }
+            if let pageRange, pageRange.length > 0 {
+                return NSLocationInRange(bookmark.chapterPosition, pageRange)
+            }
+            return false
+        }
+    }
+
     func prepareContinuousReading(rules: [ReplaceRule]) async {
         guard hasLoadedCurrentChapter else { return }
         if scrollChapters.isEmpty {
