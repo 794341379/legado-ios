@@ -36,20 +36,20 @@
       ],
       "versions": [
         {
-          "version": "0.1.10",
-          "buildVersion": "16",
-          "date": "2026-10-20T15:34:03Z",
-          "localizedDescription": "小浣熊阅读 **0.1.10**，构建号 **16**，支持 **iOS / iPadOS 15.0 及以上**。\n\n## 更新内容\n\n- 修复书源文件选择及导入流程：支持 JSON 多选，调整文件读取权限和导入预览展示时机（#1）。\n- 支持进入书源分组查看书源、打开详情及切换启用状态。\n- 修复阅读外观中的背景图片和字体选择；限制背景图片解码尺寸，降低内存占用。\n- 完善背景图片与预设主题切换，关闭背景图时保留已选图片。\n- 修复退出后重新进入阅读器的书签状态，避免重复添加书签。\n\n## 下载安装\n\n下载附件 **`legado-ios-v0.1.10-build16-unsigned.ipa`**，使用自己的签名工具安装。支持 TrollStore 的设备可自行安装；本项目暂不提供 App Store 或 TestFlight 分发。\n\n`Source code (zip / tar.gz)` 是源码，不能直接安装。附件 `SHA256SUMS` 可用于核对 IPA 完整性。\n\n## 验证与兼容\n\n本次通过 299 项核心及页面模型测试、12 项 iOS 阅读器测试、4 项文件导入与阅读操作 UI 回归，以及模拟器构建。IPA 由本次源码重新进行 iPhoneOS Release 构建。\n\niOS 15.7 真机尚未复测。若在该系统上仍遇到文件无法选择的问题，请继续在 [Issue #1](https://github.com/Aminark/legado-ios/issues/1) 反馈。\n\n**小浣熊阅读不提供、内置或分发网络书源，也不提供在线书库；书源需自行导入。**\n",
-          "downloadURL": "https://github.com/Aminark/legado-ios/releases/download/v0.1.10/legado-ios-v0.1.10-build16-unsigned.ipa",
-          "size": 12080513,
+          "version": "0.1.11",
+          "buildVersion": "17",
+          "date": "2026-10-22T03:06:37Z",
+          "localizedDescription": "小浣熊阅读 **0.1.11**，构建号 **17**，支持 **iOS / iPadOS 15.0 及以上**。\n\n## 更新内容\n\n- 修复书架和文件管理中的本地 TXT 文件选择及导入流程，支持 `.txt`、`.TXT` 多选，排除 JSON 书源文件。\n- 保留所选文件访问权限至导入完成，调整取消后重新选择和导入确认的展示流程。\n- 完善深色模式下的主按钮、选中态、阅读菜单、统计卡片和管理页面，改善文字对比度。\n- 调整规则编辑器的语法高亮、光标和工具栏外观。\n- 适配 RSS 正文、登录网页和图片查看页的背景与导航操作，保留书源自定义样式和页面状态。\n\n## 下载安装\n\n下载附件 **`legado-ios-v0.1.11-build17-unsigned.ipa`**，使用自己的签名工具安装。支持 TrollStore 的设备可自行尝试安装；本项目暂不提供 App Store 或 TestFlight 分发。\n\n`Source code (zip / tar.gz)` 是源码压缩包，不能直接安装。`SHA256SUMS` 可用于核对 IPA 完整性。\n\n## 验证与兼容\n\n本次功能代码已通过 300 项核心与页面模型测试、15 项 iOS 测试及 11 个相关 UI 回归用例。IPA 从对应源码重新进行 iPhoneOS Release 构建。\n\nUI 回归在 iOS 18.3 模拟器完成；iOS 15 真机仍未覆盖。如有兼容问题，请在 [Issues](https://github.com/Aminark/legado-ios/issues) 反馈版本、设备、系统及复现步骤。\n\n**小浣熊阅读不提供、内置或分发网络书源，也不提供在线书库；书源需自行导入。**\n",
+          "downloadURL": "https://github.com/Aminark/legado-ios/releases/download/v0.1.11/legado-ios-v0.1.11-build17-unsigned.ipa",
+          "size": 12424247,
           "minOSVersion": "15.0"
         }
       ],
-      "version": "0.1.10",
-      "versionDate": "2026-10-20T15:34:03Z",
-      "versionDescription": "小浣熊阅读 **0.1.10**，构建号 **16**，支持 **iOS / iPadOS 15.0 及以上**。\n\n## 更新内容\n\n- 修复书源文件选择及导入流程：支持 JSON 多选，调整文件读取权限和导入预览展示时机（#1）。\n- 支持进入书源分组查看书源、打开详情及切换启用状态。\n- 修复阅读外观中的背景图片和字体选择；限制背景图片解码尺寸，降低内存占用。\n- 完善背景图片与预设主题切换，关闭背景图时保留已选图片。\n- 修复退出后重新进入阅读器的书签状态，避免重复添加书签。\n\n## 下载安装\n\n下载附件 **`legado-ios-v0.1.10-build16-unsigned.ipa`**，使用自己的签名工具安装。支持 TrollStore 的设备可自行安装；本项目暂不提供 App Store 或 TestFlight 分发。\n\n`Source code (zip / tar.gz)` 是源码，不能直接安装。附件 `SHA256SUMS` 可用于核对 IPA 完整性。\n\n## 验证与兼容\n\n本次通过 299 项核心及页面模型测试、12 项 iOS 阅读器测试、4 项文件导入与阅读操作 UI 回归，以及模拟器构建。IPA 由本次源码重新进行 iPhoneOS Release 构建。\n\niOS 15.7 真机尚未复测。若在该系统上仍遇到文件无法选择的问题，请继续在 [Issue #1](https://github.com/Aminark/legado-ios/issues/1) 反馈。\n\n**小浣熊阅读不提供、内置或分发网络书源，也不提供在线书库；书源需自行导入。**\n",
-      "downloadURL": "https://github.com/Aminark/legado-ios/releases/download/v0.1.10/legado-ios-v0.1.10-build16-unsigned.ipa",
-      "size": 12080513,
+      "version": "0.1.11",
+      "versionDate": "2026-10-22T03:06:37Z",
+      "versionDescription": "小浣熊阅读 **0.1.11**，构建号 **17**，支持 **iOS / iPadOS 15.0 及以上**。\n\n## 更新内容\n\n- 修复书架和文件管理中的本地 TXT 文件选择及导入流程，支持 `.txt`、`.TXT` 多选，排除 JSON 书源文件。\n- 保留所选文件访问权限至导入完成，调整取消后重新选择和导入确认的展示流程。\n- 完善深色模式下的主按钮、选中态、阅读菜单、统计卡片和管理页面，改善文字对比度。\n- 调整规则编辑器的语法高亮、光标和工具栏外观。\n- 适配 RSS 正文、登录网页和图片查看页的背景与导航操作，保留书源自定义样式和页面状态。\n\n## 下载安装\n\n下载附件 **`legado-ios-v0.1.11-build17-unsigned.ipa`**，使用自己的签名工具安装。支持 TrollStore 的设备可自行尝试安装；本项目暂不提供 App Store 或 TestFlight 分发。\n\n`Source code (zip / tar.gz)` 是源码压缩包，不能直接安装。`SHA256SUMS` 可用于核对 IPA 完整性。\n\n## 验证与兼容\n\n本次功能代码已通过 300 项核心与页面模型测试、15 项 iOS 测试及 11 个相关 UI 回归用例。IPA 从对应源码重新进行 iPhoneOS Release 构建。\n\nUI 回归在 iOS 18.3 模拟器完成；iOS 15 真机仍未覆盖。如有兼容问题，请在 [Issues](https://github.com/Aminark/legado-ios/issues) 反馈版本、设备、系统及复现步骤。\n\n**小浣熊阅读不提供、内置或分发网络书源，也不提供在线书库；书源需自行导入。**\n",
+      "downloadURL": "https://github.com/Aminark/legado-ios/releases/download/v0.1.11/legado-ios-v0.1.11-build17-unsigned.ipa",
+      "size": 12424247,
       "appPermissions": {
         "entitlements": [],
         "privacy": {
