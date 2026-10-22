@@ -492,7 +492,7 @@ struct ReaderView: View {
                 .accessibilityIdentifier("reader.failureChangeSource")
             }
         }
-        .buttonStyle(.bordered)
+        .readingSecondaryButtonStyle()
     }
 
     private func openSourceSwitch() {
@@ -1118,7 +1118,7 @@ struct ReaderView: View {
                             Image(systemName: "textformat.size.smaller")
                                 .frame(width: 38, height: 32)
                         }
-                        .buttonStyle(.bordered)
+                        .readingSecondaryButtonStyle()
 
                         VStack(spacing: 2) {
                             Text("字号")
@@ -1135,7 +1135,7 @@ struct ReaderView: View {
                             Image(systemName: "textformat.size.larger")
                                 .frame(width: 38, height: 32)
                         }
-                        .buttonStyle(.bordered)
+                        .readingSecondaryButtonStyle()
                     }
 
                     HStack(spacing: 8) {
@@ -1285,14 +1285,19 @@ struct ReaderView: View {
                                         Text(choice.title)
                                             .font(.caption2)
                                     }
-                                    .foregroundStyle(pageAnimation == choice.value ? Color.white : Color.primary)
+                                    .foregroundStyle(pageAnimation == choice.value ? ReadingTheme.onAccent : Color.primary)
                                     .frame(width: 58, height: 54)
                                     .background(
-                                        pageAnimation == choice.value ? ReadingTheme.accent : Color.secondary.opacity(0.1),
+                                        pageAnimation == choice.value ? ReadingTheme.accentFill : Color.secondary.opacity(0.1),
                                         in: RoundedRectangle(cornerRadius: 12, style: .continuous)
                                     )
+                                    .overlay {
+                                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                            .strokeBorder(pageAnimation == choice.value ? ReadingTheme.selectionBorder : .clear, lineWidth: 1)
+                                    }
                                 }
                                 .buttonStyle(.plain)
+                                .accessibilityAddTraits(pageAnimation == choice.value ? .isSelected : [])
                             }
                         }
                     }
@@ -1392,12 +1397,16 @@ struct ReaderView: View {
         Button(action: action) {
             Text(title)
                 .font(.caption.weight(.medium))
-                .foregroundStyle(selected ? Color.white : Color.primary)
+                .foregroundStyle(selected ? ReadingTheme.onAccent : Color.primary)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 7)
-                .background(selected ? ReadingTheme.accent : Color.secondary.opacity(0.1), in: Capsule())
+                .background(selected ? ReadingTheme.accentFill : Color.secondary.opacity(0.1), in: Capsule())
+                .overlay {
+                    Capsule().strokeBorder(selected ? ReadingTheme.selectionBorder : .clear, lineWidth: 1)
+                }
         }
         .buttonStyle(.plain)
+        .accessibilityAddTraits(selected ? .isSelected : [])
     }
 
     private func valueSlider(

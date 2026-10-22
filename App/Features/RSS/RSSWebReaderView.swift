@@ -41,6 +41,9 @@ struct RSSWebReaderView: UIViewRepresentable {
             controller.addUserScript(.init(source: inject, injectionTime: .atDocumentEnd, forMainFrameOnly: false))
         }
         let webView = WKWebView(frame: .zero, configuration: configuration)
+        webView.isOpaque = false
+        webView.backgroundColor = UIColor(ReadingTheme.canvas)
+        webView.scrollView.backgroundColor = UIColor(ReadingTheme.canvas)
         webView.navigationDelegate = context.coordinator
         webView.uiDelegate = context.coordinator
         webView.allowsBackForwardNavigationGestures = true

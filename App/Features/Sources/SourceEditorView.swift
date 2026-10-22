@@ -44,11 +44,10 @@ struct SourceEditorView: View {
                         HStack {
                             ForEach(BookSourceEditorSchema.sections) { section in
                                 Button(section.title) { sectionID = section.id }
-                                    .buttonStyle(.bordered)
-                                    .tint(sectionID == section.id ? ReadingTheme.accent : .secondary)
+                                    .readingChoiceButtonStyle(isSelected: sectionID == section.id)
                             }
-                            Button("选项") { sectionID = "options" }.buttonStyle(.bordered)
-                                .tint(sectionID == "options" ? ReadingTheme.accent : .secondary)
+                            Button("选项") { sectionID = "options" }
+                                .readingChoiceButtonStyle(isSelected: sectionID == "options")
                         }.padding(.horizontal)
                     }.padding(.vertical, 6)
                     Form {

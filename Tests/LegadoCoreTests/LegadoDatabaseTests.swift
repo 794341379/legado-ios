@@ -440,7 +440,7 @@ struct LegadoDatabaseTests {
     @Test func rssHTMLAndResourcePoliciesApplyRulesInOrder() {
         let processor = RSSHTMLProcessor()
         #expect(processor.contentHTML("<head></head><body>x</body>", style: "body{color:red}").contains("<style>body{color:red}</style></head>"))
-        #expect(processor.contentHTML("<p>x</p>", style: nil).hasPrefix("<style>\(RSSHTMLProcessor.defaultStyle)</style>"))
+        #expect(processor.contentHTML("<p>x</p>", style: nil).hasPrefix("<style>\(RSSHTMLProcessor.appearanceStyle)</style><style>\(RSSHTMLProcessor.defaultStyle)</style>"))
         var source = RssSource(sourceUrl: "https://rss", sourceName: "源")
         source.startJs = "window.ready=true"; source.startStyle = "p{font-size:20px}"
         let start = processor.startHTML("<body><p>x</p></body>", source: source)

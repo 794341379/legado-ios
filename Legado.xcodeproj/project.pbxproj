@@ -6,6 +6,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		DA1000000000000000000002 /* AppearanceContrastTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA2000000000000000000002; };
+		DA1000000000000000000001 /* DarkModeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA2000000000000000000001; };
 		B10000000000000000000050 = {isa = PBXBuildFile; fileRef = B20000000000000000000050; };
 		B10000000000000000000030 /* ReaderScrollGeometryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000030; };
 		BC1000000000000000000001 /* WebReaderBridgeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC2000000000000000000001; };
@@ -124,6 +126,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		DA2000000000000000000002 /* AppearanceContrastTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests/LegadoReaderTests/AppearanceContrastTests.swift; sourceTree = SOURCE_ROOT; };
+		DA2000000000000000000001 /* DarkModeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests/LegadoReaderUITests/DarkModeUITests.swift; sourceTree = SOURCE_ROOT; };
 		B20000000000000000000050 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests/LegadoReaderUITests/ReaderScrollGestureTests.swift; sourceTree = SOURCE_ROOT; };
 		B20000000000000000000051 = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = LegadoReaderUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B20000000000000000000030 /* ReaderScrollGeometryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests/LegadoReaderTests/ReaderScrollGeometryTests.swift; sourceTree = SOURCE_ROOT; };
@@ -272,6 +276,8 @@
 				AA2200000000000000000010,
 				B20000000000000000000030 /* ReaderScrollGeometryTests.swift */,
 				BC2000000000000000000001 /* WebReaderBridgeTests.swift */,
+				DA2000000000000000000001 /* DarkModeUITests.swift */,
+				DA2000000000000000000002 /* AppearanceContrastTests.swift */,
 				A30000000000000000000001 /* App */,
 				C30000000000000000000001 /* LegadoCore */,
 				A20000000000000000000024 /* txtTocRule.json */,
@@ -678,8 +684,8 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		B30000000000000000000050 = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (B10000000000000000000050, AA1100000000000000000009, AA1100000000000000000010); runOnlyForDeploymentPostprocessing = 0; };
-		B30000000000000000000030 = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (B10000000000000000000030, BC1000000000000000000001); runOnlyForDeploymentPostprocessing = 0; };
+		B30000000000000000000050 = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (B10000000000000000000050, AA1100000000000000000009, AA1100000000000000000010, DA1000000000000000000001); runOnlyForDeploymentPostprocessing = 0; };
+		B30000000000000000000030 = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (B10000000000000000000030, BC1000000000000000000001, DA1000000000000000000002); runOnlyForDeploymentPostprocessing = 0; };
 		D30000000000000000000002 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;

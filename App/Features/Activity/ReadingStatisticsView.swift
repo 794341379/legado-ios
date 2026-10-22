@@ -47,7 +47,9 @@ struct ReadingStatisticsView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(24)
-        .background(ReadingTheme.accent, in: RoundedRectangle(cornerRadius: 20))
+        .background(ReadingTheme.emphasisSurface, in: RoundedRectangle(cornerRadius: 20))
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("statistics.todayCard")
     }
 
     private var overviewGrid: some View {

@@ -341,6 +341,22 @@ extension View {
     }
 
     @ViewBuilder
+    func readingNavigationBarBackground() -> some View {
+        if #available(iOS 16.0, *), !ReadingCompatibility.usesLegacyUI {
+            toolbarBackground(ReadingTheme.canvas, for: .navigationBar)
+                .toolbarBackground(.visible, for: .navigationBar)
+        } else {
+            background(ReadingUIKitConfiguration { controller in
+                let appearance = UINavigationBarAppearance()
+                appearance.configureWithOpaqueBackground()
+                appearance.backgroundColor = UIColor(ReadingTheme.canvas)
+                controller.navigationController?.navigationBar.standardAppearance = appearance
+                controller.navigationController?.navigationBar.scrollEdgeAppearance = appearance
+            })
+        }
+    }
+
+    @ViewBuilder
     func readingTabBarBackground() -> some View {
         if #available(iOS 16.0, *), !ReadingCompatibility.usesLegacyUI {
             toolbarBackground(ReadingTheme.canvas, for: .tabBar).toolbarBackground(.visible, for: .tabBar)

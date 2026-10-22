@@ -34,6 +34,12 @@ public struct RSSReadingPolicy: Sendable {
 
 public struct RSSHTMLProcessor: Sendable {
     public static let defaultStyle = "img{max-width:100% !important; width:auto; height:auto;}video{object-fit:fill; max-width:100% !important; width:auto; height:auto;}body{word-wrap:break-word; height:auto;max-width: 100%; width:auto;}"
+    // Keep source CSS later in the cascade so intentional source styling wins.
+    public static let appearanceStyle = """
+    :root{color-scheme:light dark;}
+    body{background-color:#fcfcfc;color:#171717;}
+    @media(prefers-color-scheme:dark){body{background-color:#111113;color:#f2f2f2;}a{color:#9ecbff;}}
+    """
     public init() {}
 
     public func contentHTML(_ content: String, style: String?) -> String {
@@ -53,7 +59,7 @@ public struct RSSHTMLProcessor: Sendable {
     }
 
     private func injectStyle(into content: String, style: String) -> String {
-        let tag = "<style>\(style)</style>"
+        let tag = "<style>\(Self.appearanceStyle)</style><style>\(style)</style>"
         if let range = content.range(of: "</style>") {
             return String(content[..<range.upperBound]) + tag + String(content[range.upperBound...])
         }

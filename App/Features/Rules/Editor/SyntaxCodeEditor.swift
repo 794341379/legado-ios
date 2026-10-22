@@ -3,6 +3,26 @@ import UIKit
 
 struct SyntaxCodeEditor: UIViewRepresentable {
     enum Language { case json, rule, javascript, regex }
+
+    // Syntax colors are text, so they need more contrast than system icon tints.
+    private enum Palette {
+        static let keyword = adaptive(0x7A2BA6, dark: 0xD5A5F5)
+        static let number = adaptive(0x895900, dark: 0xE6B66A)
+        static let operation = adaptive(0xAD285F, dark: 0xF49AB8)
+        static let punctuation = adaptive(0x14666E, dark: 0x83CED8)
+        static let string = adaptive(0x2D6B39, dark: 0x8CCF96)
+        static let key = adaptive(0x1E5EB2, dark: 0x93BFFF)
+        static let comment = adaptive(0x64646B, dark: 0xA4A4AE)
+
+        private static func adaptive(_ light: UInt32, dark: UInt32) -> UIColor {
+            UIColor { traits in
+                let hex = traits.userInterfaceStyle == .dark ? dark : light
+                return UIColor(red: CGFloat((hex >> 16) & 0xff) / 255,
+                               green: CGFloat((hex >> 8) & 0xff) / 255,
+                               blue: CGFloat(hex & 0xff) / 255, alpha: 1)
+            }
+        }
+    }
     @Binding var text: String
     var language: Language = .rule
 
@@ -13,6 +33,7 @@ struct SyntaxCodeEditor: UIViewRepresentable {
         view.delegate = context.coordinator
         view.font = .monospacedSystemFont(ofSize: 14, weight: .regular)
         view.backgroundColor = .secondarySystemGroupedBackground
+        view.tintColor = UIColor(ReadingTheme.accent)
         view.textContainerInset = UIEdgeInsets(top: 14, left: 12, bottom: 20, right: 12)
         view.autocorrectionType = .no
         view.autocapitalizationType = .none
@@ -24,6 +45,7 @@ struct SyntaxCodeEditor: UIViewRepresentable {
         view.accessibilityIdentifier = "syntaxCodeEditor"
         if #available(iOS 16.0, *) { view.isFindInteractionEnabled = true }
         let bar = UIToolbar()
+        bar.tintColor = UIColor(ReadingTheme.accent)
         bar.sizeToFit()
         bar.items = [
             UIBarButtonItem(image: UIImage(systemName: "magnifyingglass"), primaryAction: UIAction(title: "", subtitle: nil) { [weak view, coordinator = context.coordinator] _ in
@@ -126,12 +148,12 @@ struct SyntaxCodeEditor: UIViewRepresentable {
             storage.addAttributes([.font: UIFont.monospacedSystemFont(ofSize: 14, weight: .regular), .foregroundColor: UIColor.label], range: all)
             if storage.length <= 500_000 {
                 let tokens: [(String, UIColor)] = [
-                    (#"\b(?:true|false|null|undefined|return|var|let|const|if|else|function|new|for|while|try|catch|throw|await|async)\b"#, .systemPurple),
-                    (#"\b\d+(?:\.\d+)?\b"#, .systemOrange),
-                    (#"@(?:css|xpath|json|js|put|get):?|\$\.|&&|\|\||%%|##|\{\{|\}\}"#, .systemPink),
-                    (#"[{}\[\]()]"#, .systemTeal),
-                    (#""(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`"#, .systemGreen),
-                    (#""(?:\\.|[^"\\])*"(?=\s*:)"#, .systemBlue),
+                    (#"\b(?:true|false|null|undefined|return|var|let|const|if|else|function|new|for|while|try|catch|throw|await|async)\b"#, Palette.keyword),
+                    (#"\b\d+(?:\.\d+)?\b"#, Palette.number),
+                    (#"@(?:css|xpath|json|js|put|get):?|\$\.|&&|\|\||%%|##|\{\{|\}\}"#, Palette.operation),
+                    (#"[{}\[\]()]"#, Palette.punctuation),
+                    (#""(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`"#, Palette.string),
+                    (#""(?:\\.|[^"\\])*"(?=\s*:)"#, Palette.key),
                 ]
                 for (pattern, color) in tokens {
                     guard let regex = try? NSRegularExpression(pattern: pattern) else { continue }
@@ -143,7 +165,7 @@ struct SyntaxCodeEditor: UIViewRepresentable {
                     for pattern in [#"[.*+?^$|]"#, #"\\[dDsSwWbB0-9]|\{[0-9,]+\}"#] {
                         let regex = try? NSRegularExpression(pattern: pattern)
                         regex?.enumerateMatches(in: view.text, range: all) { result, _, _ in
-                            if let result { storage.addAttribute(.foregroundColor, value: UIColor.systemPink, range: result.range) }
+                            if let result { storage.addAttribute(.foregroundColor, value: Palette.operation, range: result.range) }
                         }
                     }
                 }
@@ -151,7 +173,7 @@ struct SyntaxCodeEditor: UIViewRepresentable {
                     let pattern = #"(?m)^\s*//.*$|/\*[\s\S]*?\*/"#
                     let regex = try? NSRegularExpression(pattern: pattern)
                     regex?.enumerateMatches(in: view.text, range: all) { result, _, _ in
-                        if let result { storage.addAttribute(.foregroundColor, value: UIColor.secondaryLabel, range: result.range) }
+                        if let result { storage.addAttribute(.foregroundColor, value: Palette.comment, range: result.range) }
                     }
                 }
             }

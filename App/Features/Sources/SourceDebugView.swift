@@ -81,8 +81,7 @@ struct SourceDebugView: View {
                     Label(model.isRunning ? "正在调试…" : "运行完整链路", systemImage: "play.fill")
                         .font(.headline).frame(maxWidth: .infinity)
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(ReadingTheme.accent)
+                .readingProminentButtonStyle()
                 .disabled(model.isRunning || model.keyword.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
         }

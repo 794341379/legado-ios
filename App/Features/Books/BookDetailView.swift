@@ -194,7 +194,7 @@ struct BookDetailView: View {
                 .font(.body.weight(.medium))
                 .frame(maxWidth: .infinity, minHeight: 28)
         }
-        .buttonStyle(.borderedProminent)
+        .readingProminentButtonStyle()
         .disabled(model.chapters.isEmpty)
         Button {
             if library.contains(model.book) {
@@ -210,7 +210,7 @@ struct BookDetailView: View {
             .font(.subheadline)
             .frame(maxWidth: dynamicTypeSize.isAccessibilitySize ? .infinity : nil, minHeight: 28)
         }
-        .buttonStyle(.bordered)
+        .readingSecondaryButtonStyle()
     }
 
     @ViewBuilder

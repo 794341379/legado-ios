@@ -50,6 +50,10 @@ struct RootTabView: View {
                         SearchView(initialKeyword: automationSearchKeyword)
                     } else if requestedDemoPage == "sources" {
                         SourceManagementView()
+                    } else if requestedDemoPage == "rss" {
+                        RSSHomeView()
+                    } else if requestedDemoPage == "rss-photo" {
+                        RSSPhotoView(value: "data:image/png;base64,", source: RssSource(sourceUrl: "https://appearance.invalid", sourceName: "图片外观检查"))
                     } else {
                         BookshelfView()
                     }
@@ -99,7 +103,6 @@ struct RootTabView: View {
                 .tabItem { Label("我的", systemImage: "person.crop.circle") }
                 .tag(Tab.my)
         }
-        .tint(ReadingTheme.accent)
         .readingTabBarBackground()
         .preferredColorScheme(themeMode == "2" ? .dark : (themeMode == "1" || themeMode == "3" ? .light : nil))
         .transaction { transaction in
@@ -123,6 +126,8 @@ struct RootTabView: View {
                 dismissButton: .default(Text("好")) { sourceLibrary.notice = nil }
             )
         }
+        .tint(ReadingTheme.accent)
+        .toggleStyle(SwitchToggleStyle(tint: ReadingTheme.toggleTint))
     }
 
     private var requestedDemoPage: String? {
@@ -487,7 +492,7 @@ private struct ContinueReadingCard: View {
                 .foregroundStyle(ReadingTheme.onAccent)
                 .padding(.horizontal, 18)
                 .frame(minHeight: 40)
-                .background(ReadingTheme.accent, in: Capsule())
+                .background(ReadingTheme.accentFill, in: Capsule())
                 .padding(.top, 20)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -719,7 +724,7 @@ private struct EmptyBookshelfHero: View {
             }
             VStack(spacing: 12) {
                 Button("导入本地书", action: onImport)
-                    .buttonStyle(.borderedProminent)
+                    .readingProminentButtonStyle()
                     .controlSize(.large)
                 NavigationLink("添加书源") { SourceManagementView() }
                     .font(.subheadline)
@@ -986,7 +991,7 @@ struct SearchView: View {
                     Spacer()
                     if model.isPaused {
                         Button("继续", systemImage: "play.fill") { model.resume() }
-                            .buttonStyle(.bordered)
+                            .readingSecondaryButtonStyle()
                             .controlSize(.small)
                     } else if model.state == .searching {
                         StatusPill(text: "\(model.completedSourceCount)/\(model.totalSourceCount)", systemImage: "magnifyingglass")
@@ -1037,10 +1042,10 @@ struct SearchView: View {
         ) {
             if model.isPaused {
                 Button("继续搜索", systemImage: "play.fill") { model.resume() }
-                    .buttonStyle(.borderedProminent).tint(ReadingTheme.accent)
+                    .readingProminentButtonStyle()
             }
             Button("修改关键词", systemImage: "text.cursor") { searchIsPresented = true }
-                .buttonStyle(.bordered)
+                .readingSecondaryButtonStyle()
         }
     }
 
@@ -1051,13 +1056,13 @@ struct SearchView: View {
             systemImage: "network.slash"
         ) {
             Button("调整范围", systemImage: "scope") { showsScope = true }
-                .buttonStyle(.borderedProminent).tint(ReadingTheme.accent)
+                .readingProminentButtonStyle()
             NavigationLink {
                 SourceManagementView()
             } label: {
                 Label("管理书源", systemImage: "network")
             }
-            .buttonStyle(.bordered)
+            .readingSecondaryButtonStyle()
         }
     }
 
@@ -1281,7 +1286,7 @@ private struct SettingsView: View {
                         .clipped()
                         .overlay {
                             if colorScheme == .dark {
-                                Color.black.opacity(0.62)
+                                Color.black.opacity(0.78)
                             }
                         }
                         .overlay(alignment: .bottom) {

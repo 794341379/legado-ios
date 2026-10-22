@@ -142,7 +142,7 @@ private struct RSSArticleListView: View {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack { ForEach(Array(sorts.enumerated()), id: \.element.id) { index, sort in
                         Button(sort.name.isEmpty ? "默认" : sort.name) { selectedSort = index; Task { await refresh() } }
-                            .buttonStyle(.bordered).tint(selectedSort == index ? ReadingTheme.accent : .secondary)
+                            .readingChoiceButtonStyle(isSelected: selectedSort == index)
                     }}.padding(.horizontal)
                 }.padding(.vertical, 6)
             }
@@ -435,7 +435,7 @@ private struct RSSDownloadView: View {
                 Image(systemName: "doc.badge.arrow.up").font(.system(size: 48)).foregroundStyle(ReadingTheme.accent)
                 Text(fileName).font(.headline)
                 Text(ByteCountFormatter.string(fromByteCount: Int64(data.count), countStyle: .file)).foregroundStyle(.secondary)
-                Button("选择保存位置", systemImage: "folder") { showsExporter = true }.buttonStyle(.borderedProminent)
+                Button("选择保存位置", systemImage: "folder") { showsExporter = true }.readingProminentButtonStyle()
             }
         }.padding().navigationTitle("文件下载").toolbar { ToolbarItem(placement: .cancellationAction) { Button("关闭") { dismiss() } } }
             .task(id: url) { await download() }
@@ -464,7 +464,7 @@ private struct RSSBinaryDocument: FileDocument {
     func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper { .init(regularFileWithContents: data) }
 }
 
-private struct RSSPhotoView: View {
+struct RSSPhotoView: View {
     @Environment(\.dismiss) private var dismiss
     let value: String
     let source: RssSource
@@ -480,9 +480,13 @@ private struct RSSPhotoView: View {
                         else if loading { ProgressView() }
                         else { ReadingUnavailableView("图片加载失败", systemImage: "photo.badge.exclamationmark") }
                     }.frame(minWidth: proxy.size.width, minHeight: proxy.size.height)
-                }.background(.black)
+                }
+                .background(.black)
+                .environment(\.colorScheme, .dark)
+                .tint(.white)
             }
             .navigationTitle(source.sourceName).navigationBarTitleDisplayMode(.inline)
+            .readingNavigationBarBackground()
             .toolbar {
                 ToolbarItem(placement: .primaryAction) { Button("保存到照片", systemImage: "square.and.arrow.down") { save() }.disabled(image == nil) }
                 ToolbarItem(placement: .confirmationAction) { Button("完成") { dismiss() } }
@@ -490,6 +494,7 @@ private struct RSSPhotoView: View {
             .task(id: value) { await load() }
             .alert("图片", isPresented: Binding(get: { message != nil }, set: { if !$0 { message = nil } })) { Button("好") { message = nil } } message: { Text(message ?? "") }
         }
+        .readingTabBarHidden()
     }
 
     private func load() async {

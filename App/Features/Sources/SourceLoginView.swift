@@ -1,5 +1,6 @@
 @preconcurrency import WebKit
 import SwiftUI
+import UIKit
 
 struct SourceLoginView: View {
     let source: BookSource
@@ -74,6 +75,9 @@ private struct SourceLoginWebView: UIViewRepresentable {
         let configuration = WKWebViewConfiguration()
         configuration.websiteDataStore = .default()
         let webView = WKWebView(frame: .zero, configuration: configuration)
+        webView.isOpaque = false
+        webView.backgroundColor = UIColor(ReadingTheme.canvas)
+        webView.scrollView.backgroundColor = UIColor(ReadingTheme.canvas)
         webView.navigationDelegate = context.coordinator
         context.coordinator.installExistingCookies(in: webView) { webView.load(request) }
         return webView

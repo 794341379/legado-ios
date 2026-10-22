@@ -77,6 +77,29 @@ private struct ReadingUnavailableLabelStyle: LabelStyle {
 }
 
 extension View {
+    /// Keep filled controls dark in both appearances, independently of icon tint.
+    func readingProminentButtonStyle() -> some View {
+        buttonStyle(.borderedProminent)
+            .tint(ReadingTheme.accentFill)
+            .foregroundStyle(ReadingTheme.onAccent)
+    }
+
+    func readingSecondaryButtonStyle() -> some View {
+        buttonStyle(.bordered)
+            .tint(ReadingTheme.accentFill)
+            .foregroundStyle(ReadingTheme.accent)
+    }
+
+    @ViewBuilder
+    func readingChoiceButtonStyle(isSelected: Bool) -> some View {
+        if isSelected {
+            readingProminentButtonStyle()
+                .accessibilityAddTraits(.isSelected)
+        } else {
+            readingSecondaryButtonStyle()
+        }
+    }
+
     func readingSearchable(text: Binding<String>, isPresented: Binding<Bool>, prompt: String) -> some View {
         modifier(ReadingSearchModifier(text: text, isPresented: isPresented, prompt: prompt))
     }
@@ -144,7 +167,11 @@ private struct ReadingSearchModifier: ViewModifier {
 }
 
 enum ReadingTheme {
-    static let accent = adaptive(0x171717, dark: 0xF2F2F2)
+    static let accent = adaptive(0x171717, dark: 0xDADAE0)
+    static let accentFill = adaptive(0x171717, dark: 0x414148)
+    static let emphasisSurface = adaptive(0x171717, dark: 0x29292E)
+    static let selectionBorder = adaptive(0x171717, dark: 0x777780)
+    static let toggleTint = Color(uiColor: .systemGreen)
     static let accentSoft = adaptive(0xEEEEEF, dark: 0x29292C)
     static let coral = Color(red: 0.76, green: 0.48, blue: 0.27)
     static let paper = Color(red: 0.965, green: 0.945, blue: 0.895)
@@ -153,7 +180,7 @@ enum ReadingTheme {
     static let groupedCanvas = adaptive(0xF3F3F4, dark: 0x1C1C1F)
     static let surface = adaptive(0xFFFFFF, dark: 0x232326)
     static let separator = adaptive(0xE6E6E8, dark: 0x363639)
-    static let onAccent = adaptive(0xFFFFFF, dark: 0x171717)
+    static let onAccent = Color.white
 
     private static func adaptive(_ light: UInt32, dark: UInt32) -> Color {
         Color(uiColor: UIColor { traits in
