@@ -26,9 +26,9 @@ private final class FileManagementModel: ObservableObject {
         await reload(library)
     }
 
-    func importFiles(_ urls: [URL], library: BookLibraryModel) async {
+    func importFiles(_ files: [LocalBookImportFile], library: BookLibraryModel) async {
         await run(library) {
-            await library.importLocalFiles(urls)
+            await library.importPickedLocalFiles(files)
             errorMessage = library.errorMessage
             library.clearError()
         }
@@ -136,6 +136,7 @@ struct FileManagementView: View {
                             }
                         }
                     } label: { Image(systemName: "ellipsis.circle") }
+                    .accessibilityLabel("更多")
                 }
             }
         }
@@ -162,11 +163,10 @@ struct FileManagementView: View {
 
     private var importAndRenameView: some View {
         fileList
-        .fileImporter(isPresented: $importsFile, allowedContentTypes: [.text, .plainText, .data], allowsMultipleSelection: true) { result in
-            switch result {
-            case .success(let urls): Task { await model.importFiles(urls, library: library) }
-            case .failure(let error): model.errorMessage = error.localizedDescription
-            }
+        .readingTXTFileImporter(isPresented: $importsFile) { files in
+            Task { await model.importFiles(files, library: library) }
+        } onError: { error in
+            model.errorMessage = error.localizedDescription
         }
         .alert("重命名文件", isPresented: Binding(get: { renameURL != nil }, set: { if !$0 { renameURL = nil } }), presenting: renameURL) { url in
             TextField("文件名", text: $newName)

@@ -42,4 +42,4 @@ xcrun --sdk iphonesimulator swiftc -parse-as-library -swift-version 6 \
     -o "$legado_fixture_app/SourceImportFixtures"
 xcrun simctl install "$legado_fixture_device" "$legado_fixture_app"
 xcrun simctl launch --terminate-running-process "$legado_fixture_device" com.epiboly.legado.source-import-fixtures
-printf 'JSON file import fixtures are ready in Files > On My iPhone > 书源导入测试.\n'
+printf 'JSON and TXT import fixtures are ready in Files > On My iPhone > 书源导入测试.\n'

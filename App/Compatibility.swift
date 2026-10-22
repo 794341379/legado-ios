@@ -207,9 +207,88 @@ struct ReadingPhotoPickerController: UIViewControllerRepresentable {
     }
 }
 
+private struct ReadingTXTFileImporterModifier: ViewModifier {
+    @Binding var isPresented: Bool
+    let onFiles: ([LocalBookImportFile]) -> Void
+    let onError: (Error) -> Void
+    @State private var pickedFiles: [LocalBookImportFile] = []
+    @State private var pickerHasDismissed = false
+
+    func body(content: Content) -> some View {
+        content.sheet(isPresented: $isPresented, onDismiss: {
+            pickerHasDismissed = true
+            deliverFilesWhenReady()
+        }) {
+            ReadingTXTFilePicker { files in
+                pickedFiles = files
+                isPresented = false
+                deliverFilesWhenReady()
+            } onCancel: {
+                pickedFiles = []
+                isPresented = false
+            }
+            .onAppear {
+                pickedFiles = []
+                pickerHasDismissed = false
+            }
+        }
+    }
+
+    private func deliverFilesWhenReady() {
+        // Providers may return their copies before or after dismissing Files.
+        guard pickerHasDismissed, !pickedFiles.isEmpty else { return }
+        let files = pickedFiles
+        pickedFiles = []
+        guard files.allSatisfy({ $0.url.pathExtension.lowercased() == "txt" && !$0.url.hasDirectoryPath }) else {
+            onError(LocalBookError.unsupportedFormat)
+            return
+        }
+        onFiles(files)
+    }
+}
+
+private struct ReadingTXTFilePicker: UIViewControllerRepresentable {
+    let onPick: @MainActor ([LocalBookImportFile]) -> Void
+    let onCancel: @MainActor () -> Void
+
+    func makeCoordinator() -> Coordinator { Coordinator(parent: self) }
+
+    func makeUIViewController(context: Context) -> UIDocumentPickerViewController {
+        // Plain text includes UTF-8/UTF-16 TXT, while .text and .data also allow JSON.
+        let picker = UIDocumentPickerViewController(forOpeningContentTypes: [.plainText], asCopy: true)
+        picker.allowsMultipleSelection = true
+        picker.shouldShowFileExtensions = true
+        picker.delegate = context.coordinator
+        return picker
+    }
+
+    func updateUIViewController(_ controller: UIDocumentPickerViewController, context: Context) {}
+
+    @MainActor
+    final class Coordinator: NSObject, UIDocumentPickerDelegate {
+        let parent: ReadingTXTFilePicker
+
+        init(parent: ReadingTXTFilePicker) { self.parent = parent }
+
+        func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) { parent.onCancel() }
+
+        func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
+            parent.onPick(urls.map { LocalBookImportFile(url: $0) })
+        }
+    }
+}
+
 enum ReadingSheetDetent { case medium, large }
 
 extension View {
+    func readingTXTFileImporter(
+        isPresented: Binding<Bool>,
+        onFiles: @escaping ([LocalBookImportFile]) -> Void,
+        onError: @escaping (Error) -> Void
+    ) -> some View {
+        modifier(ReadingTXTFileImporterModifier(isPresented: isPresented, onFiles: onFiles, onError: onError))
+    }
+
     func readingPhotoPicker(
         isPresented: Binding<Bool>,
         onData: @escaping (Data) -> Void,

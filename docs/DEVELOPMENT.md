@@ -41,7 +41,7 @@ sh scripts/self-check.sh
 
 阅读器测试在 Xcode 选择 `LegadoReaderTests` / `LegadoReaderUITests` Scheme 和具体模拟器运行。联网书源测试需要显式配置对应环境变量，默认核心回归主要采用自造响应，不能将其通过解读为所有线上书源均可用。
 
-书源文件选择回归需要先在已启动的测试模拟器中准备文件共享应用（将下方 UUID 换成实际值）：
+书源和本地 TXT 文件选择回归需要先在已启动的测试模拟器中准备文件共享应用（将下方 UUID 换成实际值）：
 
 ```sh
 LEGADO_TEST_DEVICE="模拟器 UUID"
@@ -49,10 +49,12 @@ sh scripts/prepare-source-import-fixture.sh "$LEGADO_TEST_DEVICE"
 xcodebuild -project Legado.xcodeproj -scheme LegadoReaderUITests \
   -destination "platform=iOS Simulator,id=$LEGADO_TEST_DEVICE" \
   -only-testing:LegadoReaderUITests/RuleEditorUITests/testJSONFilePickerOffersOpenAndImportsSelectedFiles \
+  -only-testing:LegadoReaderUITests/RuleEditorUITests/testBookshelfTXTFilePickerImportsTXTAndDisablesJSON \
+  -only-testing:LegadoReaderUITests/RuleEditorUITests/testFileManagementTXTFilePickerImportsTXTAndDisablesJSON \
   -collect-test-diagnostics never CODE_SIGNING_ALLOWED=NO test
 ```
 
-独立测试应用只提供 `.json`、`.JSON` 和 `.txt` 样本，不会被打包进正式 App。此回归检查取消后重新打开、JSON 多选后的打开按钮、导入预检及最终保存。
+独立测试应用提供 JSON 书源和 `.txt`、`.TXT` 小说样本，不会被打包进正式 App。此回归检查取消后重新打开、书源 JSON 多选、本地 TXT 可选且 JSON 不可选、导入确认及最终保存。
 
 ## 兼容性验证
 

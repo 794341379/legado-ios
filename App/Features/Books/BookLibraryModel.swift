@@ -4,6 +4,20 @@ import SwiftUI
 import LegadoCore
 #endif
 
+final class LocalBookImportFile: @unchecked Sendable {
+    let url: URL
+    private let hasSecurityScope: Bool
+
+    init(url: URL) {
+        self.url = url
+        hasSecurityScope = url.startAccessingSecurityScopedResource()
+    }
+
+    deinit {
+        if hasSecurityScope { url.stopAccessingSecurityScopedResource() }
+    }
+}
+
 enum AppBookChapterRepository {
     static func live() -> any BookChapterRepository {
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
@@ -318,10 +332,15 @@ final class BookLibraryModel: ObservableObject {
     }
 
     func importLocalFiles(_ urls: [URL]) async {
+        await importPickedLocalFiles(urls.map { LocalBookImportFile(url: $0) })
+    }
+
+    func importPickedLocalFiles(_ files: [LocalBookImportFile]) async {
+        // Keep the picker grants alive through the review and asynchronous copy.
+        defer { withExtendedLifetime(files) {} }
         var failures: [String] = []
-        for url in urls {
-            let granted = url.startAccessingSecurityScopedResource()
-            defer { if granted { url.stopAccessingSecurityScopedResource() } }
+        for file in files {
+            let url = file.url
             do {
                 let stored = try await localFiles.importFile(from: url)
                 do {

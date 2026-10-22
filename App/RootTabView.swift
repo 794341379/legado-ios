@@ -146,7 +146,7 @@ private struct BookshelfView: View {
     @EnvironmentObject private var library: BookLibraryModel
     @EnvironmentObject private var sources: SourceLibraryModel
     @State private var showsLocalImporter = false
-    @State private var pendingLocalURLs: [URL] = []
+    @State private var pendingLocalFiles: [LocalBookImportFile] = []
     @State private var selectedGroupID = BookGroup.idAll
     @State private var showsGroupManager = false
     @AppStorage("bookshelfLayout") private var bookshelfLayout = "grid3"
@@ -222,26 +222,17 @@ private struct BookshelfView: View {
         }
         .background(ReadingTheme.canvas)
         .navigationBarHidden(true)
-        .fileImporter(
-            isPresented: $showsLocalImporter,
-            allowedContentTypes: [.text, .plainText, .data],
-            allowsMultipleSelection: true
-        ) { result in
-            switch result {
-            case .success(let urls):
-                pendingLocalURLs = urls.filter { $0.pathExtension.lowercased() == "txt" }
-                if pendingLocalURLs.isEmpty, !urls.isEmpty {
-                    library.reportError(LocalBookError.unsupportedFormat)
-                }
-            case .failure(let error): library.reportError(error)
-            }
+        .readingTXTFileImporter(isPresented: $showsLocalImporter) { files in
+            pendingLocalFiles = files
+        } onError: { error in
+            library.reportError(error)
         }
         .sheet(isPresented: Binding(
-            get: { !pendingLocalURLs.isEmpty },
-            set: { if !$0 { pendingLocalURLs = [] } }
+            get: { !pendingLocalFiles.isEmpty },
+            set: { if !$0 { pendingLocalFiles = [] } }
         )) {
-            LocalBookImportReviewView(urls: pendingLocalURLs) {
-                pendingLocalURLs = []
+            LocalBookImportReviewView(files: pendingLocalFiles) {
+                pendingLocalFiles = []
             }
             .environmentObject(library)
         }
@@ -646,15 +637,17 @@ private struct BookGroupSelectView: View {
 private struct LocalBookImportReviewView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var library: BookLibraryModel
-    let urls: [URL]
+    let files: [LocalBookImportFile]
     let onFinish: () -> Void
     @State private var selectedPaths: Set<String>
     @State private var isImporting = false
 
-    init(urls: [URL], onFinish: @escaping () -> Void) {
-        self.urls = urls
+    private var urls: [URL] { files.map(\.url) }
+
+    init(files: [LocalBookImportFile], onFinish: @escaping () -> Void) {
+        self.files = files
         self.onFinish = onFinish
-        _selectedPaths = State(initialValue: Set(urls.map(\.path)))
+        _selectedPaths = State(initialValue: Set(files.map { $0.url.path }))
     }
 
     var body: some View {
@@ -690,9 +683,9 @@ private struct LocalBookImportReviewView: View {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("导入") {
                         isImporting = true
-                        let selected = urls.filter { selectedPaths.contains($0.path) }
+                        let selected = files.filter { selectedPaths.contains($0.url.path) }
                         Task {
-                            await library.importLocalFiles(selected)
+                            await library.importPickedLocalFiles(selected)
                             finish()
                         }
                     }

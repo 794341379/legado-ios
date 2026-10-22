@@ -19,6 +19,10 @@ final class FixtureAppDelegate: UIResponder, UIApplicationDelegate {
                 try? data.write(to: documents.appendingPathComponent(name), options: .atomic)
             }
         }
+        for name in ["TXT-Book.txt", "TXT-Uppercase.TXT"] {
+            try? Data("第一章 开始\n这是用于验证本地 TXT 导入的小说正文。\n第二章 后续\n正文继续。".utf8)
+                .write(to: documents.appendingPathComponent(name), options: .atomic)
+        }
         let controller = UIViewController()
         controller.view.backgroundColor = .systemBackground
         let label = UILabel()

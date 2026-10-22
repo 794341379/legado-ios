@@ -2,6 +2,92 @@ import XCTest
 
 @MainActor
 final class RuleEditorUITests: XCTestCase {
+    func testBookshelfTXTFilePickerImportsTXTAndDisablesJSON() throws {
+        try exerciseLocalTXTImport(fromFileManagement: false)
+    }
+
+    func testFileManagementTXTFilePickerImportsTXTAndDisablesJSON() throws {
+        try exerciseLocalTXTImport(fromFileManagement: true)
+    }
+
+    private func exerciseLocalTXTImport(fromFileManagement: Bool) throws {
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launchArguments = ["-uiDemo", "-themeMode", "1", "-bookshelfLayout", "grid3"]
+        if fromFileManagement { app.launchArguments += ["-uiDemoTab", "settings", "-uiDemoFiles"] }
+        app.launch()
+        let importTitle = fromFileManagement ? "导入 TXT 文件" : "本地书"
+        let more = fromFileManagement
+            ? app.navigationBars["文件管理"].buttons["更多"].firstMatch
+            : app.buttons["更多"].firstMatch
+        XCTAssertTrue(more.waitForExistence(timeout: 20))
+        more.tap()
+        app.buttons[importTitle].tap()
+        let cancel = app.buttons.matching(NSPredicate(format: "label IN %@", ["Cancel", "取消"])).firstMatch
+        XCTAssertTrue(cancel.waitForExistence(timeout: 10))
+        cancel.tap()
+        let closed = expectation(for: NSPredicate { _, _ in !cancel.exists }, evaluatedWith: nil)
+        wait(for: [closed], timeout: 10)
+        more.tap()
+        app.buttons[importTitle].tap()
+        XCTAssertTrue(cancel.waitForExistence(timeout: 10))
+
+        let pickerFiles = app.collectionViews["File View"].cells
+        let txt = pickerFiles.matching(NSPredicate(format: "label BEGINSWITH %@", "TXT-Book")).firstMatch
+        let fixtureJSON = pickerFiles.matching(NSPredicate(format: "label BEGINSWITH %@", "JSON-Source")).firstMatch
+        let fixtures = pickerFiles.matching(NSPredicate(format: "label BEGINSWITH %@", "书源导入测试")).firstMatch
+        // The file-management page underneath the picker can also contain TXT.
+        // JSON exists only inside our fixture folder in the actual picker.
+        if !fixtureJSON.waitForExistence(timeout: 3) {
+            if !fixtures.exists {
+                let browse = app.buttons.matching(NSPredicate(format: "label IN %@", ["Browse", "浏览", "Locations", "位置"])).firstMatch
+                if browse.exists { browse.tap() }
+                if !fixtures.waitForExistence(timeout: 2) {
+                    let local = app.descendants(matching: .any).matching(NSPredicate(
+                        format: "label CONTAINS %@ OR label CONTAINS %@ OR label == %@", "我的 iPhone", "我的iPhone", "On My iPhone"
+                    )).firstMatch
+                    XCTAssertTrue(local.waitForExistence(timeout: 5))
+                    local.tap()
+                }
+            }
+            XCTAssertTrue(fixtures.waitForExistence(timeout: 10), "Run sh scripts/prepare-source-import-fixture.sh <simulator-UUID>")
+            fixtures.tap()
+        }
+        XCTAssertTrue(txt.waitForExistence(timeout: 10))
+        let open = app.buttons.matching(NSPredicate(format: "label IN %@", ["Open", "打开", "Import", "导入"])).firstMatch
+        for name in ["JSON-Source", "JSON-Uppercase"] {
+            let json = pickerFiles.matching(NSPredicate(format: "label BEGINSWITH %@", name)).firstMatch
+            XCTAssertTrue(json.waitForExistence(timeout: 5))
+            XCTAssertFalse(json.isEnabled)
+            json.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+            XCTAssertFalse(open.exists && open.isEnabled, "JSON must not be selectable as a local book")
+        }
+        txt.tap()
+        let uppercase = pickerFiles.matching(NSPredicate(format: "label BEGINSWITH %@", "TXT-Uppercase")).firstMatch
+        XCTAssertTrue(uppercase.waitForExistence(timeout: 5))
+        uppercase.tap()
+        XCTAssertTrue(open.waitForExistence(timeout: 5))
+        XCTAssertTrue(open.isEnabled)
+        attach(app, name: "TXT selectable and JSON excluded")
+        open.tap()
+
+        if fromFileManagement {
+            XCTAssertTrue(app.navigationBars["文件管理"].waitForExistence(timeout: 15))
+            app.tabBars.buttons["书架"].tap()
+        } else {
+            XCTAssertTrue(app.navigationBars["导入本地书"].waitForExistence(timeout: 15))
+            XCTAssertFalse(app.staticTexts["JSON-Source.json"].exists)
+            XCTAssertFalse(app.staticTexts["JSON-Uppercase.JSON"].exists)
+            XCTAssertTrue(app.staticTexts["TXT-Book.txt"].exists)
+            XCTAssertTrue(app.staticTexts["TXT-Uppercase.TXT"].exists)
+            app.buttons["导入"].tap()
+        }
+        // Repeated runs preserve managed files and correctly add a numeric suffix.
+        XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH %@", "TXT-Book")).firstMatch.waitForExistence(timeout: 15))
+        XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH %@", "TXT-Uppercase")).firstMatch.waitForExistence(timeout: 15))
+        attach(app, name: "Local TXT books imported onto shelf")
+    }
+
     func testJSONFilePickerOffersOpenAndImportsSelectedFiles() throws {
         continueAfterFailure = false
         let app = XCUIApplication()

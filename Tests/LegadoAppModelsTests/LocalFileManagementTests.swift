@@ -5,6 +5,38 @@ import LegadoCore
 
 @MainActor
 struct LocalFileManagementTests {
+    @Test func pickedTXTImportsButJSONFilesCannotBecomeLocalBooks() async throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let inputs = [
+            ("小说.TXT", "第一章 开始\n本地小说的正文"),
+            ("书源.json", #"{"bookSourceName":"书源"}"#),
+            ("大写书源.JSON", #"{"bookSourceName":"书源"}"#)
+        ]
+        let files = try inputs.map { name, text in
+            let url = root.appendingPathComponent(name)
+            try Data(text.utf8).write(to: url)
+            return LocalBookImportFile(url: url)
+        }
+        let model = BookLibraryModel(repository: InMemoryBookRepository(),
+                                     localDirectory: root.appendingPathComponent("managed"),
+                                     chapterRepository: InMemoryBookChapterRepository())
+        await model.load()
+
+        await model.importPickedLocalFiles(files)
+
+        let book = try #require(model.books.first)
+        #expect(model.books.count == 1)
+        #expect(book.origin == "local")
+        #expect(book.originName == "小说.TXT")
+        #expect(model.errorMessage?.contains("书源.json") == true)
+        #expect(model.errorMessage?.contains("大写书源.JSON") == true)
+        #expect(try await model.localFiles.list().count == 1)
+        let imported = try #require(URL(string: book.bookUrl))
+        #expect(try Data(contentsOf: imported) == Data(inputs[0].1.utf8))
+    }
+
     private func fixture(fails: Bool = false) async throws -> (URL, Book, BookLibraryModel) {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
         try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
