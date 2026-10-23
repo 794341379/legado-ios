@@ -36,20 +36,20 @@
       ],
       "versions": [
         {
-          "version": "0.1.11",
-          "buildVersion": "17",
-          "date": "2026-10-22T03:06:37Z",
-          "localizedDescription": "小浣熊阅读 **0.1.11**，构建号 **17**，支持 **iOS / iPadOS 15.0 及以上**。\n\n## 更新内容\n\n- 修复书架和文件管理中的本地 TXT 文件选择及导入流程，支持 `.txt`、`.TXT` 多选，排除 JSON 书源文件。\n- 保留所选文件访问权限至导入完成，调整取消后重新选择和导入确认的展示流程。\n- 完善深色模式下的主按钮、选中态、阅读菜单、统计卡片和管理页面，改善文字对比度。\n- 调整规则编辑器的语法高亮、光标和工具栏外观。\n- 适配 RSS 正文、登录网页和图片查看页的背景与导航操作，保留书源自定义样式和页面状态。\n\n## 下载安装\n\n下载附件 **`legado-ios-v0.1.11-build17-unsigned.ipa`**，使用自己的签名工具安装。支持 TrollStore 的设备可自行尝试安装；本项目暂不提供 App Store 或 TestFlight 分发。\n\n`Source code (zip / tar.gz)` 是源码压缩包，不能直接安装。`SHA256SUMS` 可用于核对 IPA 完整性。\n\n## 验证与兼容\n\n本次功能代码已通过 300 项核心与页面模型测试、15 项 iOS 测试及 11 个相关 UI 回归用例。IPA 从对应源码重新进行 iPhoneOS Release 构建。\n\nUI 回归在 iOS 18.3 模拟器完成；iOS 15 真机仍未覆盖。如有兼容问题，请在 [Issues](https://github.com/Aminark/legado-ios/issues) 反馈版本、设备、系统及复现步骤。\n\n**小浣熊阅读不提供、内置或分发网络书源，也不提供在线书库；书源需自行导入。**\n",
-          "downloadURL": "https://github.com/Aminark/legado-ios/releases/download/v0.1.11/legado-ios-v0.1.11-build17-unsigned.ipa",
-          "size": 12424247,
+          "version": "0.1.12",
+          "buildVersion": "18",
+          "date": "2026-10-23T17:02:37Z",
+          "localizedDescription": "小浣熊阅读 **0.1.12**，构建号 **18**，支持 **iOS / iPadOS 15.0 及以上**。\n\n## 更新内容\n\n- 增加无 DRM EPUB 2/3 导入与阅读，识别书名、作者、封面、NCX/nav 目录及章节锚点，按书脊顺序保留正文。\n- EPUB 支持阅读进度、书签、朗读和阅读样式；在阅读菜单「更多 → 本章插图」查看插图。\n- 本地文件管理支持 EPUB 重命名、原格式导出、删除，以及从系统文件应用打开。\n- 改善 JSON 规则模板、候选选择、组合替换和请求参数兼容，修复 JavaScript 数字类型及动态净化替换。\n- 修复 RSS 翻页失败重试、切换订阅时的过期结果和重复翻页请求。\n- 改善连续滚动中的章节插入定位，调整 iOS 26 代码编辑与图片查看工具栏。\n\n## 下载安装\n\n下载附件 **`legado-ios-v0.1.12-build18-unsigned.ipa`**，使用自己的签名工具安装。支持 TrollStore 的设备可自行尝试安装；目前不提供 App Store 或 TestFlight 分发。\n\n`Source code (zip / tar.gz)` 是源码，不能直接安装。附件 `SHA256SUMS` 用于核对 IPA 完整性。\n\n## 兼容与验证\n\nEPUB 正文使用现有阅读器重新排版，暂不还原原书 CSS、固定版式及交互内容，不支持加密正文。\n\n安装包由对应源码重新进行 iPhoneOS Release 构建，并核对包内版本及完整性。本轮文件导入界面回归仍有待确认项，尚未完成 UI 回归和真机安装验证；如遇问题，请在 [Issues](https://github.com/Aminark/legado-ios/issues) 附上设备、系统版本及复现步骤。\n\n**小浣熊阅读不提供、内置或分发网络书源，也不提供在线书库；书源需自行导入。**\n",
+          "downloadURL": "https://github.com/Aminark/legado-ios/releases/download/v0.1.12/legado-ios-v0.1.12-build18-unsigned.ipa",
+          "size": 12638772,
           "minOSVersion": "15.0"
         }
       ],
-      "version": "0.1.11",
-      "versionDate": "2026-10-22T03:06:37Z",
-      "versionDescription": "小浣熊阅读 **0.1.11**，构建号 **17**，支持 **iOS / iPadOS 15.0 及以上**。\n\n## 更新内容\n\n- 修复书架和文件管理中的本地 TXT 文件选择及导入流程，支持 `.txt`、`.TXT` 多选，排除 JSON 书源文件。\n- 保留所选文件访问权限至导入完成，调整取消后重新选择和导入确认的展示流程。\n- 完善深色模式下的主按钮、选中态、阅读菜单、统计卡片和管理页面，改善文字对比度。\n- 调整规则编辑器的语法高亮、光标和工具栏外观。\n- 适配 RSS 正文、登录网页和图片查看页的背景与导航操作，保留书源自定义样式和页面状态。\n\n## 下载安装\n\n下载附件 **`legado-ios-v0.1.11-build17-unsigned.ipa`**，使用自己的签名工具安装。支持 TrollStore 的设备可自行尝试安装；本项目暂不提供 App Store 或 TestFlight 分发。\n\n`Source code (zip / tar.gz)` 是源码压缩包，不能直接安装。`SHA256SUMS` 可用于核对 IPA 完整性。\n\n## 验证与兼容\n\n本次功能代码已通过 300 项核心与页面模型测试、15 项 iOS 测试及 11 个相关 UI 回归用例。IPA 从对应源码重新进行 iPhoneOS Release 构建。\n\nUI 回归在 iOS 18.3 模拟器完成；iOS 15 真机仍未覆盖。如有兼容问题，请在 [Issues](https://github.com/Aminark/legado-ios/issues) 反馈版本、设备、系统及复现步骤。\n\n**小浣熊阅读不提供、内置或分发网络书源，也不提供在线书库；书源需自行导入。**\n",
-      "downloadURL": "https://github.com/Aminark/legado-ios/releases/download/v0.1.11/legado-ios-v0.1.11-build17-unsigned.ipa",
-      "size": 12424247,
+      "version": "0.1.12",
+      "versionDate": "2026-10-23T17:02:37Z",
+      "versionDescription": "小浣熊阅读 **0.1.12**，构建号 **18**，支持 **iOS / iPadOS 15.0 及以上**。\n\n## 更新内容\n\n- 增加无 DRM EPUB 2/3 导入与阅读，识别书名、作者、封面、NCX/nav 目录及章节锚点，按书脊顺序保留正文。\n- EPUB 支持阅读进度、书签、朗读和阅读样式；在阅读菜单「更多 → 本章插图」查看插图。\n- 本地文件管理支持 EPUB 重命名、原格式导出、删除，以及从系统文件应用打开。\n- 改善 JSON 规则模板、候选选择、组合替换和请求参数兼容，修复 JavaScript 数字类型及动态净化替换。\n- 修复 RSS 翻页失败重试、切换订阅时的过期结果和重复翻页请求。\n- 改善连续滚动中的章节插入定位，调整 iOS 26 代码编辑与图片查看工具栏。\n\n## 下载安装\n\n下载附件 **`legado-ios-v0.1.12-build18-unsigned.ipa`**，使用自己的签名工具安装。支持 TrollStore 的设备可自行尝试安装；目前不提供 App Store 或 TestFlight 分发。\n\n`Source code (zip / tar.gz)` 是源码，不能直接安装。附件 `SHA256SUMS` 用于核对 IPA 完整性。\n\n## 兼容与验证\n\nEPUB 正文使用现有阅读器重新排版，暂不还原原书 CSS、固定版式及交互内容，不支持加密正文。\n\n安装包由对应源码重新进行 iPhoneOS Release 构建，并核对包内版本及完整性。本轮文件导入界面回归仍有待确认项，尚未完成 UI 回归和真机安装验证；如遇问题，请在 [Issues](https://github.com/Aminark/legado-ios/issues) 附上设备、系统版本及复现步骤。\n\n**小浣熊阅读不提供、内置或分发网络书源，也不提供在线书库；书源需自行导入。**\n",
+      "downloadURL": "https://github.com/Aminark/legado-ios/releases/download/v0.1.12/legado-ios-v0.1.12-build18-unsigned.ipa",
+      "size": 12638772,
       "appPermissions": {
         "entitlements": [],
         "privacy": {
