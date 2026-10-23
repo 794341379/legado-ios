@@ -41,7 +41,7 @@ sh scripts/self-check.sh
 
 阅读器测试在 Xcode 选择 `LegadoReaderTests` / `LegadoReaderUITests` Scheme 和具体模拟器运行。联网书源测试需要显式配置对应环境变量，默认核心回归主要采用自造响应，不能将其通过解读为所有线上书源均可用。
 
-书源和本地 TXT 文件选择回归需要先在已启动的测试模拟器中准备文件共享应用（将下方 UUID 换成实际值）：
+书源和本地 TXT / EPUB 文件选择回归需要先在已启动的测试模拟器中准备文件共享应用（将下方 UUID 换成实际值）：
 
 ```sh
 LEGADO_TEST_DEVICE="模拟器 UUID"
@@ -49,12 +49,14 @@ sh scripts/prepare-source-import-fixture.sh "$LEGADO_TEST_DEVICE"
 xcodebuild -project Legado.xcodeproj -scheme LegadoReaderUITests \
   -destination "platform=iOS Simulator,id=$LEGADO_TEST_DEVICE" \
   -only-testing:LegadoReaderUITests/RuleEditorUITests/testJSONFilePickerOffersOpenAndImportsSelectedFiles \
-  -only-testing:LegadoReaderUITests/RuleEditorUITests/testBookshelfTXTFilePickerImportsTXTAndDisablesJSON \
-  -only-testing:LegadoReaderUITests/RuleEditorUITests/testFileManagementTXTFilePickerImportsTXTAndDisablesJSON \
+  -only-testing:LegadoReaderUITests/RuleEditorUITests/testBookshelfFilePickerImportsTXTAndEPUBAndDisablesJSON \
+  -only-testing:LegadoReaderUITests/RuleEditorUITests/testFileManagementFilePickerImportsTXTAndEPUBAndDisablesJSON \
   -collect-test-diagnostics never CODE_SIGNING_ALLOWED=NO test
 ```
 
-独立测试应用提供 JSON 书源和 `.txt`、`.TXT` 小说样本，不会被打包进正式 App。此回归检查取消后重新打开、书源 JSON 多选、本地 TXT 可选且 JSON 不可选、导入确认及最终保存。
+独立测试应用提供 JSON 书源和 `.txt`、`.TXT`、`.epub` 小说样本，不会被打包进正式 App。此回归检查取消后重新打开、书源 JSON 多选、本地 TXT / EPUB 可选且 JSON 不可选、导入确认、最终保存、EPUB 正文、插图与目录跳转。
+
+RSS 的导入、源内搜索、分页、正文、收藏以及重启恢复可通过本地自造响应回归，避免依赖第三方网站。先在一个终端运行 `python3 scripts/fixtures/rss-flow-server.py`，再在 Xcode 选择 `LegadoRSSFlowUITests` Scheme 和模拟器运行；也可用 `xcodebuild -project Legado.xcodeproj -scheme LegadoRSSFlowUITests -destination 'platform=iOS Simulator,id=模拟器UUID' CODE_SIGNING_ALLOWED=NO test`。该服务仅监听本机 `127.0.0.1:18763`，测试结束后按 Ctrl-C 停止。普通 UI Scheme 默认跳过此用例。
 
 ## 兼容性验证
 
@@ -101,7 +103,7 @@ source_release_tag=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[
 gh release download "$source_release_tag" --repo Aminark/legado-ios \
   --pattern '*.ipa' --dir "$source_update_dir"
 python3 scripts/update-altstore-source.py \
-  --ipa "$source_update_dir/legado-ios-v0.1.11-build17-unsigned.ipa" \
+  --ipa "$source_update_dir/legado-ios-v0.1.12-build18-unsigned.ipa" \
   --release "$source_update_dir/release.json"
 python3 -m unittest discover -s scripts/tests -v
 ```
@@ -111,3 +113,9 @@ python3 -m unittest discover -s scripts/tests -v
 发布后检查固定地址可匿名访问、图标和截图能正常加载，并下载源中 IPA 再核对大小、摘要和版本。客户端的添加源、安装、更新与签名流程需分别实测；源文件校验通过不代表已完成真机安装验证。
 
 格式说明：[AltStore 源规范](https://faq.altstore.io/developers/make-a-source)、[SideStore 源字段](https://sidestore.io/sidestore-source-types/interfaces/Source.html)、[LiveContainer 源用法](https://livecontainer.github.io/docs/guides/sources)。
+
+## EPUB 回归
+
+`swift test --disable-sandbox --filter EPUB` 覆盖 EPUB 2/3 元数据、中文资源路径、同页锚点、无目录降级、书脊顺序、插图、损坏与加密文件、重命名导出、导入失败回滚和阅读进度恢复。样本均由测试自行生成，不依赖网络或第三方书籍。
+
+解析器按需读取 ZIP 资源，不解压到磁盘；单资源上限为 32 MiB，正文阅读不执行脚本或加载外部资源。字体混淆不影响文字阅读，加密正文会显示明确错误。原书 CSS、固定版式和交互内容不在当前重排阅读模式范围内。

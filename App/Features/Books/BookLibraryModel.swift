@@ -360,7 +360,7 @@ final class BookLibraryModel: ObservableObject {
 
     func addLocalFile(at url: URL) async throws {
         guard !books.contains(where: { $0.bookUrl == url.absoluteString }) else { return }
-        let report = try await Task.detached { [localService] in try localService.openTextFile(at: url) }.value
+        let report = try await Task.detached { [localService] in try localService.openFile(at: url) }.value
         guard !books.contains(where: { $0.bookUrl == url.absoluteString }) else { return }
         guard await persist(books + [report.book]) else {
             throw LocalFileError.saveFailed(errorMessage ?? "无法写入数据库")

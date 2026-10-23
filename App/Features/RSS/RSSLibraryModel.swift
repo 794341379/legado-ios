@@ -10,29 +10,42 @@ final class RSSLibraryModel: ObservableObject {
     @Published private(set) var isWorking = false
     @Published var errorMessage: String?
 
-    private let sourceRepository: SQLiteRssSourceRepository
-    private let articleRepository: SQLiteRssArticleRepository
-    private let starRepository: SQLiteRssStarRepository
-    private let recordRepository: SQLiteRssReadRecordRepository
+    private var sourceRepository: SQLiteRssSourceRepository { get throws { .init(database: try database) } }
+    private var articleRepository: SQLiteRssArticleRepository { get throws { .init(database: try database) } }
+    private var starRepository: SQLiteRssStarRepository { get throws { .init(database: try database) } }
+    private var recordRepository: SQLiteRssReadRecordRepository { get throws { .init(database: try database) } }
     private let service: RSSService
     private let importer = RSSSourceImporter()
-    private let database: LegadoDatabase
+    private let databaseResult: Result<LegadoDatabase, Error>
+    private var database: LegadoDatabase { get throws { try databaseResult.get() } }
     private var nextURL: String?
     private var page = 1
     private var order: Int64 = 0
+    private struct Feed: Equatable {
+        let origin: String
+        let sort: String
+        let key: String?
+    }
+    private var activeFeed: Feed?
+    private var articleRequestID = UUID()
+    private var loadingMoreRequestID: UUID?
+    private var activeOperations = 0
 
     init(database: LegadoDatabase, service: RSSService = .init()) {
-        self.database = database
-        sourceRepository = .init(database: database)
-        articleRepository = .init(database: database)
-        starRepository = .init(database: database)
-        recordRepository = .init(database: database)
+        databaseResult = .success(database)
         self.service = service
     }
 
-    static func live() -> RSSLibraryModel {
-        let database = try! LegadoDatabase(url: LegadoDatabase.defaultURL())
-        return .init(database: database)
+    private init(databaseError: Error) {
+        let error = LegadoDatabaseError.open("RSS 数据库无法打开：\(databaseError.localizedDescription)。请检查存储空间后重新启动应用。")
+        databaseResult = .failure(error)
+        service = .init()
+        errorMessage = error.localizedDescription
+    }
+
+    static func live(databaseURL: URL = LegadoDatabase.defaultURL()) -> RSSLibraryModel {
+        do { return .init(database: try LegadoDatabase(url: databaseURL)) }
+        catch { return .init(databaseError: error) }
     }
 
     func load() async {
@@ -62,15 +75,16 @@ final class RSSLibraryModel: ObservableObject {
     func importText(_ text: String) async {
         await perform {
             let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+            var merged: [RssSource]
             if let url = URL(string: trimmed), ["http", "https"].contains(url.scheme?.lowercased() ?? "") {
-                self.sources = try await self.importRemote(trimmed, existing: self.sources)
+                merged = try await self.importRemote(trimmed, existing: self.sources)
             } else {
                 let payload = try self.importer.decode(Data(trimmed.utf8))
-                var merged = try self.importer.merge(payload.sources, into: self.sources)
+                merged = try self.importer.merge(payload.sources, into: self.sources)
                 for remote in payload.subscriptionURLs { merged = try await self.importRemote(remote, existing: merged) }
-                self.sources = merged
             }
-            try await self.sourceRepository.save(self.sources)
+            try await self.sourceRepository.save(merged)
+            self.sources = try await self.sourceRepository.all()
         }
     }
 
@@ -130,31 +144,53 @@ final class RSSLibraryModel: ObservableObject {
     }
 
     func refresh(_ source: RssSource, sortName: String? = nil, sortURL: String? = nil, key: String? = nil) async {
-        page = 1; order = Int64(Date().timeIntervalSince1970 * 1_000)
         let name = sortName ?? source.sourceName
         let url = sortURL ?? source.sortUrl?.nilIfBlank ?? source.sourceUrl
-        await perform {
+        let feed = Feed(origin: source.sourceUrl, sort: name, key: key)
+        let requestID = UUID()
+        articleRequestID = requestID
+        loadingMoreRequestID = nil
+        if activeFeed != feed { articles = [] }
+        activeFeed = feed
+        nextURL = nil
+        page = 1
+        await perform(isCurrent: { self.articleRequestID == requestID }) {
             let report = try await self.service.articles(sortName: name, sortURL: url, source: source, page: 1, key: key)
+            guard self.articleRequestID == requestID else { return }
+            var nextOrder = Int64(Date().timeIntervalSince1970 * 1_000)
             var values = report.result.articles
-            for index in values.indices { values[index].order = self.order; self.order -= 1 }
+            for index in values.indices { values[index].order = nextOrder; nextOrder -= 1 }
             try await self.articleRepository.put(values)
-            if source.ruleNextPage?.isEmpty == false { try await self.articleRepository.clearOld(origin: source.sourceUrl, sort: name, before: self.order) }
+            if source.ruleNextPage?.isEmpty == false { try await self.articleRepository.clearOld(origin: source.sourceUrl, sort: name, before: nextOrder) }
+            let articles = try await self.articleRepository.articles(origin: source.sourceUrl, sort: name)
+            guard self.articleRequestID == requestID else { return }
+            self.order = nextOrder
             self.nextURL = report.result.nextURL
-            self.articles = try await self.articleRepository.articles(origin: source.sourceUrl, sort: name)
+            self.articles = articles
         }
     }
 
     func loadMore(_ source: RssSource, sortName: String? = nil, key: String? = nil) async {
-        guard let nextURL, !nextURL.isEmpty else { return }
-        page += 1
         let name = sortName ?? source.sourceName
-        await perform {
-            let report = try await self.service.articles(sortName: name, sortURL: nextURL, source: source, page: self.page, key: key)
+        guard activeFeed == Feed(origin: source.sourceUrl, sort: name, key: key),
+              loadingMoreRequestID == nil, let nextURL, !nextURL.isEmpty else { return }
+        let requestID = articleRequestID
+        loadingMoreRequestID = requestID
+        defer { if loadingMoreRequestID == requestID { loadingMoreRequestID = nil } }
+        let nextPage = page + 1
+        await perform(isCurrent: { self.articleRequestID == requestID }) {
+            let report = try await self.service.articles(sortName: name, sortURL: nextURL, source: source, page: nextPage, key: key)
+            guard self.articleRequestID == requestID else { return }
+            var nextOrder = self.order
             var values = report.result.articles
-            for index in values.indices { values[index].order = self.order; self.order -= 1 }
+            for index in values.indices { values[index].order = nextOrder; nextOrder -= 1 }
             try await self.articleRepository.append(values)
+            let articles = try await self.articleRepository.articles(origin: source.sourceUrl, sort: name)
+            guard self.articleRequestID == requestID else { return }
+            self.page = nextPage
+            self.order = nextOrder
             self.nextURL = report.result.nextURL
-            self.articles = try await self.articleRepository.articles(origin: source.sourceUrl, sort: name)
+            self.articles = articles
         }
     }
 
@@ -231,9 +267,11 @@ final class RSSLibraryModel: ObservableObject {
         let payload = try importer.decode(data)
         return try importer.merge(payload.sources, into: existing)
     }
-    private func perform(_ operation: () async throws -> Void) async {
-        isWorking = true; defer { isWorking = false }
-        do { try await operation() } catch { errorMessage = error.localizedDescription }
+    private func perform(isCurrent: () -> Bool = { true }, _ operation: () async throws -> Void) async {
+        activeOperations += 1
+        isWorking = true
+        defer { activeOperations -= 1; isWorking = activeOperations > 0 }
+        do { try await operation() } catch { if isCurrent() { errorMessage = error.localizedDescription } }
     }
 }
 

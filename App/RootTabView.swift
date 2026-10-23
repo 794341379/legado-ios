@@ -227,7 +227,7 @@ private struct BookshelfView: View {
         }
         .background(ReadingTheme.canvas)
         .navigationBarHidden(true)
-        .readingTXTFileImporter(isPresented: $showsLocalImporter) { files in
+        .readingLocalBookFileImporter(isPresented: $showsLocalImporter) { files in
             pendingLocalFiles = files
         } onError: { error in
             library.reportError(error)
@@ -449,7 +449,7 @@ private struct BookshelfBookDestination: View {
     let source: BookSource?
 
     var body: some View {
-        if ProcessInfo.processInfo.arguments.contains("-uiDemo") {
+        if ProcessInfo.processInfo.arguments.contains("-uiDemo"), book.origin != "local" {
             ReaderView(demoBook: book, chapters: DemoContent.readerChapters, initialIndex: 0, content: DemoContent.readerText)
         } else {
             BookshelfReadView(book: book, source: source)
@@ -912,6 +912,8 @@ struct SearchView: View {
                 } label: {
                     Label("搜索选项", systemImage: "slider.horizontal.3")
                 }
+                .accessibilityLabel("搜索选项")
+                .accessibilityIdentifier("search.options")
             }
         }
         .sheet(isPresented: $showsScope) {

@@ -151,14 +151,20 @@ private struct RSSArticleListView: View {
         .overlay { if library.articles.isEmpty, !library.isWorking { ReadingUnavailableView("没有文章", systemImage: "newspaper") } }
         .navigationTitle(source.sourceName)
         .searchable(text: $searchKey, prompt: "源内搜索")
+        .onSubmit(of: .search) { Task { await refresh() } }
         .refreshable { await refresh() }
         .toolbar {
             ToolbarItem(placement: .primaryAction) { Button("刷新", systemImage: "arrow.clockwise") { Task { await refresh() } } }
             ToolbarItem(placement: .primaryAction) { NavigationLink { RSSSourceEditorView(source: source) } label: { Label("编辑", systemImage: "pencil") } }
             ToolbarItem(placement: .primaryAction) { NavigationLink { RSSSourceDebugView(source: source) } label: { Label("调试", systemImage: "stethoscope") } }
-            ToolbarItem(placement: .bottomBar) { Button("加载下一页", systemImage: "arrow.down") { Task { await library.loadMore(source, sortName: activeName, key: searchKey.nilIfEmpty) } } }
+            ToolbarItem(placement: .bottomBar) {
+                Button("加载下一页", systemImage: "arrow.down") {
+                    Task { await library.loadMore(source, sortName: activeName, key: searchKey.nilIfEmpty) }
+                }.disabled(library.isWorking)
+            }
         }
         .task { sorts = await RSSSortResolver().resolve(source); await refresh() }
+        .readingTabBarHidden()
     }
 
     private var activeSort: RSSSort { sorts.indices.contains(selectedSort) ? sorts[selectedSort] : .init(name: "", url: source.sourceUrl) }
@@ -464,6 +470,32 @@ private struct RSSBinaryDocument: FileDocument {
     func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper { .init(regularFileWithContents: data) }
 }
 
+private struct RSSPhotoToolbar: ViewModifier {
+    let canSave: Bool
+    let save: () -> Void
+    let close: () -> Void
+
+    func body(content: Content) -> some View {
+        if #available(iOS 26.0, *) {
+            content.toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    Button("保存到照片", systemImage: "square.and.arrow.down", action: save).disabled(!canSave)
+                }.sharedBackgroundVisibility(.hidden)
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("完成", action: close).buttonStyle(.plain)
+                }.sharedBackgroundVisibility(.hidden)
+            }
+        } else {
+            content.toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    Button("保存到照片", systemImage: "square.and.arrow.down", action: save).disabled(!canSave)
+                }
+                ToolbarItem(placement: .confirmationAction) { Button("完成", action: close) }
+            }
+        }
+    }
+}
+
 struct RSSPhotoView: View {
     @Environment(\.dismiss) private var dismiss
     let value: String
@@ -487,10 +519,7 @@ struct RSSPhotoView: View {
             }
             .navigationTitle(source.sourceName).navigationBarTitleDisplayMode(.inline)
             .readingNavigationBarBackground()
-            .toolbar {
-                ToolbarItem(placement: .primaryAction) { Button("保存到照片", systemImage: "square.and.arrow.down") { save() }.disabled(image == nil) }
-                ToolbarItem(placement: .confirmationAction) { Button("完成") { dismiss() } }
-            }
+            .modifier(RSSPhotoToolbar(canSave: image != nil, save: save, close: { dismiss() }))
             .task(id: value) { await load() }
             .alert("图片", isPresented: Binding(get: { message != nil }, set: { if !$0 { message = nil } })) { Button("好") { message = nil } } message: { Text(message ?? "") }
         }

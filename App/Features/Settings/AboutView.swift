@@ -80,6 +80,7 @@ private struct OpenSourceLicensesView: View {
             license("小浣熊阅读 / Legado", resource: "Legado-LICENSE", detail: "GNU GPL v3")
             license("SwiftSoup", resource: "SwiftSoup-LICENSE", detail: "MIT License")
             license("Kanna", resource: "Kanna-LICENSE", detail: "MIT License")
+            license("ZIPFoundation", resource: "ZIPFoundation-LICENSE", detail: "MIT License")
         }.navigationTitle("开源许可").navigationBarTitleDisplayMode(.inline)
     }
 

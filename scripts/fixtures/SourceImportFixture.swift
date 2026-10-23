@@ -23,6 +23,10 @@ final class FixtureAppDelegate: UIResponder, UIApplicationDelegate {
             try? Data("第一章 开始\n这是用于验证本地 TXT 导入的小说正文。\n第二章 后续\n正文继续。".utf8)
                 .write(to: documents.appendingPathComponent(name), options: .atomic)
         }
+        if let epub = Bundle.main.url(forResource: "EPUB-Book", withExtension: "epub"),
+           let data = try? Data(contentsOf: epub) {
+            try? data.write(to: documents.appendingPathComponent("EPUB-Book.epub"), options: .atomic)
+        }
         let controller = UIViewController()
         controller.view.backgroundColor = .systemBackground
         let label = UILabel()

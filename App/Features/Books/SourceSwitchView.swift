@@ -151,6 +151,6 @@ struct SourceSwitchView: View {
             .padding(.vertical, 5)
         }
         .disabled(model.switchingID != nil)
-        .accessibilityIdentifier("sourceSwitch.candidate.\(candidate.book.origin)")
+        .accessibilityIdentifier("sourceSwitch.candidate.\(candidate.id)")
     }
 }

@@ -246,6 +246,54 @@ final class ReaderScrollGeometryTests: XCTestCase {
         XCTAssertEqual(fixture.view.contentOffset.y, layout.frames[row].minY, accuracy: 1 / fixture.window.screen.scale)
     }
 
+    func testRepeatedShortChapterPrependingDoesNotAccumulateOffsetDrift() async throws {
+        func short(_ index: Int) -> ReaderScrollChapter {
+            .init(id: index, title: "第\(index + 1)章 · 连续阅读", content: "短章正文，继续向下可以自然读到下一章。")
+        }
+        let fixture = host(chapters: (20...22).map(short), active: 20)
+        defer { fixture.coordinator.displayLink?.invalidate(); fixture.window.isHidden = true }
+        for first in stride(from: 19, through: 0, by: -1) {
+            fixture.coordinator.parent = surface(chapters: (first...22).map(short), active: 20)
+            fixture.coordinator.update(fixture.view)
+            try await Task.sleep(nanoseconds: 10_000_000)
+        }
+        let layout = fixture.view.collectionViewLayout as! ReaderContinuousLayout
+        let row = try XCTUnwrap(fixture.coordinator.blocks.firstIndex { $0.chapter.chapter.id == 20 })
+        XCTAssertEqual(fixture.view.contentOffset.y, layout.frames[row].minY,
+                       accuracy: 1 / fixture.window.screen.scale)
+        XCTAssertTrue(fixture.view.accessibilityValue?.contains("chapter=20 ") == true,
+                      fixture.view.accessibilityValue ?? "Missing viewport report")
+    }
+
+    func testFractionalPixelBoundariesBelongToTheFollowingRow() {
+        let layout = ReaderContinuousLayout()
+        let frames = (0..<100).map { CGRect(x: 0, y: CGFloat($0 * 5) / 3, width: 390, height: 5.0 / 3) }
+        layout.install(frames: frames, size: CGSize(width: 390, height: 500.0 / 3), correction: 0)
+        for index in frames.indices {
+            XCTAssertEqual(layout.row(at: frames[index].minY), index)
+        }
+    }
+
+    func testPrependingPreservesTheChapterBelowTopPadding() async throws {
+        func short(_ index: Int) -> ReaderScrollChapter {
+            .init(id: index, title: "短章\(index)", content: "短章正文")
+        }
+        let fixture = host(chapters: [short(20)], active: 20)
+        defer { fixture.coordinator.displayLink?.invalidate(); fixture.window.isHidden = true }
+        // A short initial chapter can settle at offset zero with its heading
+        // still below the reading area's top padding.
+        fixture.view.setContentOffset(.zero, animated: false)
+        fixture.coordinator.parent = surface(chapters: (19...21).map(short), active: 20)
+        fixture.coordinator.update(fixture.view)
+        try await Task.sleep(nanoseconds: 10_000_000)
+        let layout = fixture.view.collectionViewLayout as! ReaderContinuousLayout
+        let row = try XCTUnwrap(fixture.coordinator.blocks.firstIndex { $0.chapter.chapter.id == 20 })
+        XCTAssertEqual(layout.frames[row].minY - fixture.view.contentOffset.y, 16,
+                       accuracy: 1 / fixture.window.screen.scale)
+        XCTAssertTrue(fixture.view.accessibilityValue?.contains("chapter=20 ") == true,
+                      fixture.view.accessibilityValue ?? "Missing viewport report")
+    }
+
     private func chapter(_ index: Int) -> ReaderScrollChapter {
         .init(id: index, title: "第\(index)章", content: String(repeating: "正文包含中文、英文 words 与家庭表情👨‍👩‍👧‍👦，用于验证连续阅读的排版和位置。\n", count: 100))
     }

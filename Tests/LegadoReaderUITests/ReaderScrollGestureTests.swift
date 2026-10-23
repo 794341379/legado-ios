@@ -354,8 +354,13 @@ final class ReaderScrollGestureTests: XCTestCase {
         app.launch()
         let reader = app.collectionViews["reader.continuous"]
         XCTAssertTrue(reader.waitForExistence(timeout: 20))
+        var lastInitialState = "<not reported>"
         let ready = expectation(for: NSPredicate { _, _ in
-            let text = reader.value as? String ?? ""
+            let text = reader.value as? String ?? "<missing>"
+            if text != lastInitialState {
+                print("[ContinuousReaderInitial] \(text)")
+                lastInitialState = text
+            }
             return text.contains("chapter=20 ") && !text.contains("chapters=1 ")
         }, evaluatedWith: nil)
         wait(for: [ready], timeout: 20)

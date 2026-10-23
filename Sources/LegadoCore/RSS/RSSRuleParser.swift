@@ -84,6 +84,13 @@ public struct RSSRuleParser: Sendable {
     private func flatten(_ values: [JSONValue]) -> [JSONValue] {
         values.flatMap { value in
             if case .array(let items) = value { return items }
+            // Text rules serialize selected JSON arrays. Expand them before
+            // evaluating article fields, just as for an already parsed array.
+            if case .string(let text) = value,
+               text.trimmingCharacters(in: .whitespacesAndNewlines).hasPrefix("["),
+               let items = try? JSONDecoder().decode([JSONValue].self, from: Data(text.utf8)) {
+                return items
+            }
             return [value]
         }
     }

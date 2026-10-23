@@ -21,6 +21,12 @@
 - 用途：XPath 解析。
 - 许可：MIT，完整版权及许可见 [Kanna-LICENSE.txt](App/Resources/Kanna-LICENSE.txt)。
 
+## ZIPFoundation
+
+- 项目：<https://github.com/weichsel/ZIPFoundation>，固定版本 `0.9.20`。
+- 用途：按需读取 EPUB ZIP 容器与校验资源 CRC。
+- 许可：MIT，完整版权及许可见 [ZIPFoundation-LICENSE.txt](App/Resources/ZIPFoundation-LICENSE.txt)。
+
 ## 测试数据与演示内容
 
 测试中的规则样本仅用于兼容验证，不打包为 App 默认书源。具体说明见 [测试样本说明](Tests/LegadoCoreTests/Fixtures/README.md)。演示模式使用虚构书籍元数据和项目内演示文本；发布截图不使用个人书架、登录信息或付费章节。

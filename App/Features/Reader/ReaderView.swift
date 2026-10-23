@@ -18,6 +18,7 @@ struct ReaderView: View {
     @StateObject private var speech = ReaderSpeechController()
     @State private var showsTableOfContents = false
     @State private var showsBookmarks = false
+    @State private var illustrationChapter: BookChapter?
     @State private var showsAutoReadControls = false
     @State private var showsStyleControls = false
     @State private var isAutoReading = false
@@ -257,6 +258,9 @@ struct ReaderView: View {
         }
         .sheet(isPresented: $showsTableOfContents) { tableOfContents }
         .sheet(isPresented: $showsBookmarks) { bookmarksSheet }
+        .sheet(item: $illustrationChapter) { chapter in
+            EPUBIllustrationsView(book: book, chapter: chapter)
+        }
         .sheet(isPresented: $showsAutoReadControls) { autoReadControls }
         .sheet(isPresented: $showsStyleControls) { styleControls }
         .sheet(isPresented: $showsContentSearch) { contentSearchSheet }
@@ -698,6 +702,7 @@ struct ReaderView: View {
             || showsReaderMenu
             || showsTableOfContents
             || showsBookmarks
+            || illustrationChapter != nil
             || showsAutoReadControls
             || showsStyleControls
             || showsContentSearch
@@ -833,6 +838,12 @@ struct ReaderView: View {
             Button("搜索正文", systemImage: "magnifyingglass") {
                 showsReaderMenu = false
                 showsContentSearch = true
+            }
+            if book.origin == "local", URL(string: book.bookUrl)?.pathExtension.lowercased() == "epub" {
+                Button("本章插图", systemImage: "photo.on.rectangle") {
+                    showsReaderMenu = false
+                    illustrationChapter = model.currentChapter
+                }
             }
             Button("书签列表", systemImage: "bookmark") {
                 showsReaderMenu = false
@@ -1575,7 +1586,7 @@ struct ReaderView: View {
                     Text("正文")
                 } footer: {
                     if !model.canEditContent {
-                        Text("本地 TXT 直接来自原文件；为避免破坏章节偏移，本章编辑与网络刷新仅对网络书籍开放。")
+                        Text("本地 TXT / EPUB 直接读取原文件。本章编辑与网络刷新仅对网络书籍开放。")
                     }
                 }
 

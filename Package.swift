@@ -12,14 +12,16 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/scinfu/SwiftSoup.git", exact: "2.13.5"),
-        .package(url: "https://github.com/tid-kijyun/Kanna.git", exact: "6.1.0")
+        .package(url: "https://github.com/tid-kijyun/Kanna.git", exact: "6.1.0"),
+        .package(url: "https://github.com/weichsel/ZIPFoundation.git", exact: "0.9.20")
     ],
     targets: [
         .target(
             name: "LegadoCore",
             dependencies: [
                 .product(name: "SwiftSoup", package: "SwiftSoup"),
-                .product(name: "Kanna", package: "Kanna")
+                .product(name: "Kanna", package: "Kanna"),
+                .product(name: "ZIPFoundation", package: "ZIPFoundation")
             ],
             linkerSettings: [
                 .linkedFramework("JavaScriptCore"),
@@ -29,7 +31,7 @@ let package = Package(
         ),
         .testTarget(
             name: "LegadoCoreTests",
-            dependencies: ["LegadoCore"],
+            dependencies: ["LegadoCore", .product(name: "ZIPFoundation", package: "ZIPFoundation")],
             resources: [.copy("Fixtures")]
         ),
         .target(
@@ -42,7 +44,7 @@ let package = Package(
                 "Rules/ReplaceRuleManagementView.swift", "Rules/ReplaceRuleEditorView.swift", "Rules/RuleSubscriptionView.swift", "Rules/TxtTocRuleManagementView.swift", "Rules/Editor",
                 "Books/BookDetailView.swift", "Books/LocalBookDetailView.swift", "Books/SourceSwitchView.swift",
                 "Reader/ReaderAppearance.swift", "Reader/ReaderSpeechController.swift", "Reader/ReaderSupport.swift",
-                "Reader/ReaderTextView.swift", "Reader/ReaderScrollView.swift", "Reader/ReaderView.swift"
+                "Reader/EPUBIllustrationsView.swift", "Reader/ReaderTextView.swift", "Reader/ReaderScrollView.swift", "Reader/ReaderView.swift"
             ],
             sources: [
                 "Sources/SourceLibraryModel.swift", "Rules/ReplaceRuleLibraryModel.swift", "Search/SearchViewModel.swift",
@@ -52,7 +54,7 @@ let package = Package(
         ),
         .testTarget(
             name: "LegadoAppModelsTests",
-            dependencies: ["LegadoAppModels", "LegadoCore"]
+            dependencies: ["LegadoAppModels", "LegadoCore", .product(name: "ZIPFoundation", package: "ZIPFoundation")]
         )
     ]
 )
