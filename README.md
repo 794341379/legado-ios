@@ -11,6 +11,7 @@
 ![iOS 15+](https://img.shields.io/badge/iOS-15%2B-315C50)
 ![Swift](https://img.shields.io/badge/Swift-F05138?logo=swift&logoColor=white)
 [![GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue)](LICENSE)
+[![TestFlight 公测](https://img.shields.io/badge/TestFlight-Beta-0D96F6?logo=apple&logoColor=white)](https://testflight.apple.com/join/RSmhQ9Xn)
 
 [下载安装](#下载安装) · [主要功能](#主要功能) · [应用截图](#应用截图) · [书源说明](#书源说明) · [问题反馈](https://github.com/Aminark/legado-ios/issues)
 
@@ -26,13 +27,25 @@
 
 支持 **iOS / iPadOS 15.0 及以上**。
 
-**IPA 下载见 [GitHub Releases](https://github.com/Aminark/legado-ios/releases)，需要自行签名安装。** 请下载附件中的 `.ipa` 文件；`Source code` 是源码压缩包。
+### TestFlight 公测（推荐）
 
-目前没有付费 iOS 开发者账号，暂时无法提供 TestFlight，也暂不上架 App Store。这个项目主要是自己使用和分享，没有盈利计划。
+**[点击加入小浣熊阅读 TestFlight 公测](https://testflight.apple.com/join/RSmhQ9Xn)**
+
+1. 在 iPhone 或 iPad 上安装 Apple 官方的 [TestFlight](https://apps.apple.com/app/testflight/id899247664)。
+2. 使用同一台设备打开上方公测链接，按页面提示接受邀请并安装「小浣熊阅读」。
+3. 后续可在 TestFlight 中获取测试版更新，也欢迎通过 TestFlight 或 [GitHub Issues](https://github.com/Aminark/legado-ios/issues) 反馈问题。
+
+通过 TestFlight 安装无需自行签名。
+
+### IPA 与源码安装
+
+**IPA 下载见 [GitHub Releases](https://github.com/Aminark/legado-ios/releases)，需要自行签名安装。** 请下载附件中的 `.ipa` 文件；`Source code` 是源码压缩包。
 
 - **自行签名安装**：使用自己的签名工具安装 IPA。免费 Apple 账号自签的描述文件有效期通常为 7 天，到期需要重新签名安装，见 [Apple 说明](https://developer.apple.com/help/account/basics/about-your-developer-account#enable-a-personal-team-in-xcode)。
 - **巨魔安装**：已支持 [TrollStore](https://github.com/opa334/TrollStore) 的设备可自行尝试安装，具体系统兼容范围以 TrollStore 项目说明为准。
 - **源码构建**：有 macOS 和 Xcode 的朋友也可以自行编译，见 [开发指南](docs/DEVELOPMENT.md)。
+
+这个项目主要是自己使用和分享，没有盈利计划。
 
 ## 主要功能
 
