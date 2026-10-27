@@ -3,6 +3,21 @@ import Testing
 @testable import LegadoCore
 
 struct ApplicationSettingsTests {
+    @Test func verifiesCertificatesByDefaultAndPreservesExplicitCompatibilitySetting() throws {
+        let suite = "legado.settings.tls.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let store = ApplicationSettingsStore(defaults: defaults)
+        #expect(!store.settings.ignoreCertificateErrors)
+        var settings = store.settings
+        settings.ignoreCertificateErrors = true
+        try store.save(settings)
+        #expect(store.settings.ignoreCertificateErrors)
+        settings.ignoreCertificateErrors = false
+        try store.save(settings)
+        #expect(!store.settings.ignoreCertificateErrors)
+    }
+
     @Test func validatesAndPersistsWithoutOverwritingOnFailure() throws {
         let suite = "legado.settings.tests.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suite)!

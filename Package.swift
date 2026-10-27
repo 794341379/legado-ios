@@ -23,6 +23,7 @@ let package = Package(
                 .product(name: "Kanna", package: "Kanna"),
                 .product(name: "ZIPFoundation", package: "ZIPFoundation")
             ],
+            resources: [.process("RuleEngine/Resources")],
             linkerSettings: [
                 .linkedFramework("JavaScriptCore"),
                 .linkedFramework("CryptoKit"),

@@ -1740,6 +1740,28 @@ struct ReaderView: View {
 
 
     private var tableOfContents: some View {
+        ScrollViewReader { proxy in
+            tableOfContentsNavigation(using: proxy)
+                .onAppear { tocSearch = "" }
+                .task(id: tocDescending) {
+                    scrollToCurrentTOCChapter(using: proxy)
+                }
+                .onChange(of: tocSearch) { query in
+                    if query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        scrollToCurrentTOCChapter(using: proxy)
+                    }
+                }
+        }
+        .readingPresentationDetents([.medium, .large])
+        .readingPresentationDragIndicator()
+    }
+
+    private func scrollToCurrentTOCChapter(using proxy: ScrollViewProxy) {
+        guard let chapter = model.currentChapter else { return }
+        proxy.scrollTo(chapter.id, anchor: .center)
+    }
+
+    private func tableOfContentsNavigation(using proxy: ScrollViewProxy) -> some View {
         ReadingNavigationStack {
             List {
                 Section {
@@ -1753,6 +1775,7 @@ struct ReaderView: View {
                             .foregroundStyle(ReadingTheme.accent)
                             .padding(.vertical, 4)
                             .listRowBackground(ReadingTheme.accent.opacity(0.07))
+                            .id(chapter.id)
                         } else {
                             let isCurrent = chapter.id == model.currentChapter?.id
                             Button {
@@ -1793,6 +1816,7 @@ struct ReaderView: View {
                             }
                             .buttonStyle(.plain)
                             .listRowBackground(isCurrent ? ReadingTheme.accent.opacity(0.08) : Color.clear)
+                            .id(chapter.id)
                         }
                     }
                 } header: {
@@ -1820,15 +1844,25 @@ struct ReaderView: View {
             .searchable(text: $tocSearch, prompt: "搜索章节")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("关闭") { showsTableOfContents = false } }
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItemGroup(placement: .topBarTrailing) {
+                    Button("定位") {
+                        if tocSearch.isEmpty {
+                            withAnimation {
+                                scrollToCurrentTOCChapter(using: proxy)
+                            }
+                        } else {
+                            tocSearch = ""
+                        }
+                    }
+                    .disabled(model.currentChapter == nil)
+                    .accessibilityHint("回到当前正在阅读的章节")
+                    .accessibilityIdentifier("reader.tocLocate")
                     Button(tocDescending ? "正序" : "倒序", systemImage: "arrow.up.arrow.down") {
                         tocDescending.toggle()
                     }
                 }
             }
         }
-        .readingPresentationDetents([.medium, .large])
-        .readingPresentationDragIndicator()
     }
 
     private var tocReadableChapterCount: Int {

@@ -47,11 +47,19 @@ public struct JavaScriptRuleResult: Sendable {
 enum RuleExecutionWorker {
     static func run<Value: Sendable>(_ operation: @escaping @Sendable () throws -> Value) async throws -> Value {
         try Task.checkCancellation()
-        let result = try await withCheckedThrowingContinuation { continuation in
-            DispatchQueue.global(qos: .userInitiated).async {
-                continuation.resume(with: Result { try operation() })
+        let cancellation = JSExecutionCancellation()
+        let result = try await withTaskCancellationHandler {
+            try await withCheckedThrowingContinuation { continuation in
+                DispatchQueue.global(qos: .userInitiated).async {
+                    Thread.current.threadDictionary[JSExecutionCancellation.threadKey] = cancellation
+                    defer { Thread.current.threadDictionary.removeObject(forKey: JSExecutionCancellation.threadKey) }
+                    continuation.resume(with: Result {
+                        if cancellation.isCancelled { throw CancellationError() }
+                        return try operation()
+                    })
+                }
             }
-        }
+        } onCancel: { cancellation.cancel() }
         try Task.checkCancellation()
         return result
     }
@@ -95,9 +103,11 @@ public final class SynchronousJavaScriptNetworkLoader: JavaScriptRedirectNetwork
                 lock.withLock { result = value }
                 semaphore.signal()
             }
-            guard semaphore.wait(timeout: .now() + max(1, request.timeoutInterval) + 1) == .success else {
+            do {
+                try Self.wait(semaphore, timeout: max(1, request.timeoutInterval) + 1)
+            } catch {
                 task.cancel()
-                throw URLError(.timedOut)
+                throw error
             }
             lock.lock(); let value = result; lock.unlock()
             return try value?.get() ?? { throw HTTPClientError.nonHTTPResponse }()
@@ -150,14 +160,26 @@ public final class SynchronousJavaScriptNetworkLoader: JavaScriptRedirectNetwork
         }
         task.resume()
         let timeout = min(max(request.timeoutInterval, 1), 180)
-        guard semaphore.wait(timeout: .now() + timeout + 1) == .success else {
+        do {
+            try Self.wait(semaphore, timeout: timeout + 1)
+        } catch {
             task.cancel()
-            throw URLError(.timedOut)
+            throw error
         }
         lock.lock()
         let result = output
         lock.unlock()
         return try result?.get() ?? { throw HTTPClientError.nonHTTPResponse }()
+    }
+
+    private static func wait(_ semaphore: DispatchSemaphore, timeout: TimeInterval) throws {
+        let deadline = ProcessInfo.processInfo.systemUptime + timeout
+        while semaphore.wait(timeout: .now() + 0.05) != .success {
+            if JSExecutionCancellation.current?.isCancelled == true { throw CancellationError() }
+            try JSExecutionBudget.current?.check(rule: "java.connect/ajax")
+            if ProcessInfo.processInfo.systemUptime >= deadline { throw URLError(.timedOut) }
+        }
+        try JSExecutionBudget.current?.check(rule: "java.connect/ajax")
     }
 }
 
@@ -183,6 +205,8 @@ private final class JavaScriptRedirectBlocker: NSObject, URLSessionTaskDelegate,
 public struct JavaScriptRuleEvaluator: Sendable {
     public var maximumScriptLength: Int
     public var maximumResultLength: Int
+    public var maximumExecutionTime: TimeInterval
+    public var maximumCheckpoints: Int
     private let networkLoader: any JavaScriptNetworkLoading
     private let urlBuilder: LegadoURLBuilder
 
@@ -195,11 +219,15 @@ public struct JavaScriptRuleEvaluator: Sendable {
     public init(
         maximumScriptLength: Int = 64 * 1_024,
         maximumResultLength: Int = 2 * 1_024 * 1_024,
+        maximumExecutionTime: TimeInterval = 10,
+        maximumCheckpoints: Int = 100_000,
         networkLoader: any JavaScriptNetworkLoading = SynchronousJavaScriptNetworkLoader(),
         urlBuilder: LegadoURLBuilder = .init()
     ) {
         self.maximumScriptLength = maximumScriptLength
         self.maximumResultLength = maximumResultLength
+        self.maximumExecutionTime = maximumExecutionTime
+        self.maximumCheckpoints = maximumCheckpoints
         self.networkLoader = networkLoader
         self.urlBuilder = urlBuilder
     }
@@ -217,9 +245,19 @@ public struct JavaScriptRuleEvaluator: Sendable {
     /// Keep this closure on the synchronous replacement call's thread.
     func replacementEvaluator(script: String, book: Book, chapter: BookChapter) -> (String) throws -> String {
         var virtualMachine: JSVirtualMachine?
+        var replacementBudget: JSExecutionBudget?
         var executionContext = RuleExecutionContext(book: book, chapter: chapter)
         return { match in
             if virtualMachine == nil { virtualMachine = JSVirtualMachine() }
+            let outerBudget = JSExecutionBudget.current
+            if replacementBudget == nil {
+                replacementBudget = outerBudget ?? JSExecutionBudget(seconds: maximumExecutionTime, checkpoints: maximumCheckpoints)
+            }
+            Thread.current.threadDictionary[JSExecutionBudget.threadKey] = outerBudget ?? replacementBudget
+            defer {
+                if let outerBudget { Thread.current.threadDictionary[JSExecutionBudget.threadKey] = outerBudget }
+                else { Thread.current.threadDictionary.removeObject(forKey: JSExecutionBudget.threadKey) }
+            }
             let result = try autoreleasepool {
                 try evaluate(script: script, result: .string(match), executionContext: executionContext,
                              virtualMachine: virtualMachine!, stringifyResult: true)
@@ -239,7 +277,16 @@ public struct JavaScriptRuleEvaluator: Sendable {
         guard script.utf8.count <= maximumScriptLength else {
             throw RuleEngineError.resourceLimit(rule: script, detail: "JavaScript 规则超过长度上限")
         }
-        try rejectUnboundedExecution(script)
+        let existingBudget = JSExecutionBudget.current
+        let budget = existingBudget ?? JSExecutionBudget(seconds: maximumExecutionTime, checkpoints: maximumCheckpoints)
+        if existingBudget == nil { Thread.current.threadDictionary[JSExecutionBudget.threadKey] = budget }
+        defer {
+            if existingBudget == nil { Thread.current.threadDictionary.removeObject(forKey: JSExecutionBudget.threadKey) }
+        }
+        _ = budget.checkpoint()
+        try budget.check(rule: script)
+        let checkName = "__legadoCheck_" + UUID().uuidString.replacingOccurrences(of: "-", with: "")
+        let guardedScript = try Self.instrument(script, checkName: checkName)
 
         let box = JSVariableBox(executionContext.variables)
         guard let context = JSContext(virtualMachine: virtualMachine) else {
@@ -266,6 +313,7 @@ public struct JavaScriptRuleEvaluator: Sendable {
             (function () {
               var nativeParse = JSON.parse;
               JSON.parse = function (value) {
+                value = __legadoUnboxResponseBody(value);
                 if (typeof value !== 'string') return value;
                 var text = value;
                 if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
@@ -276,19 +324,22 @@ public struct JavaScriptRuleEvaluator: Sendable {
             })();
             """)
 
+        try installExecutionGuard(in: context, budget: budget, checkName: checkName)
+
         if let library = executionContext.source?.jsLib?.trimmingCharacters(in: .whitespacesAndNewlines),
            !library.isEmpty {
             guard library.utf8.count <= maximumScriptLength else {
                 throw RuleEngineError.resourceLimit(rule: library, detail: "书源 jsLib 超过长度上限")
             }
-            try rejectUnboundedExecution(library)
-            context.evaluateScript(library)
+            context.evaluateScript(try Self.instrument(library, checkName: checkName))
+            try budget.check(rule: library)
             if let exceptionMessage {
                 throw RuleEngineError.malformedRule(rule: library, detail: "书源 jsLib 执行失败：\(exceptionMessage)")
             }
         }
 
-        let evaluated = context.evaluateScript(script)
+        let evaluated = context.evaluateScript(guardedScript)
+        try budget.check(rule: script)
         if let exceptionMessage {
             throw RuleEngineError.malformedRule(rule: script, detail: "JavaScript 执行失败：\(exceptionMessage)")
         }
@@ -316,6 +367,7 @@ public struct JavaScriptRuleEvaluator: Sendable {
         } else {
             value = JSONValue.bridge(normalized?.toObject())
         }
+        try budget.check(rule: script)
         if let exceptionMessage {
             throw RuleEngineError.malformedRule(rule: script, detail: "JavaScript 执行失败：\(exceptionMessage)")
         }
@@ -406,7 +458,8 @@ public struct JavaScriptRuleEvaluator: Sendable {
             let iv = Self.byteData(from: ivValue)
             let input = Self.byteData(from: dataValue)
             guard [1, 2].contains(operation), [16, 24, 32].contains(key.count),
-                  iv.count == kCCBlockSizeAES128, input.count <= maximumBytes else { return nil }
+                  iv.count == kCCBlockSizeAES128, input.count <= maximumBytes,
+                  operation != 2 || (!input.isEmpty && input.count.isMultiple(of: kCCBlockSizeAES128)) else { return nil }
             var output = [UInt8](repeating: 0, count: input.count + kCCBlockSizeAES128)
             let capacity = output.count
             var written = 0
@@ -679,12 +732,19 @@ public struct JavaScriptRuleEvaluator: Sendable {
         java?.setObject(setCookie, forKeyedSubscript: "setCookie" as NSString)
         java?.setObject(ajax, forKeyedSubscript: "ajax" as NSString)
         java?.setObject(ajaxAll, forKeyedSubscript: "ajaxAll" as NSString)
-        java?.setObject(connect, forKeyedSubscript: "connect" as NSString)
+        java?.setObject(connect, forKeyedSubscript: "__connect" as NSString)
         java?.setObject(directRequest, forKeyedSubscript: "__directRequest" as NSString)
         context.setObject(java, forKeyedSubscript: "java" as NSString)
         context.evaluateScript("""
             (function () {
               var getVariable = java.get;
+              var responseBodies = new WeakMap();
+              var rememberBody = responseBodies.set.bind(responseBodies);
+              var hasBody = responseBodies.has.bind(responseBodies);
+              var readBody = responseBodies.get.bind(responseBodies);
+              this.__legadoUnboxResponseBody = function (value) {
+                return hasBody(value) ? readBody(value) : value;
+              };
               function responseOf(raw) {
                 if (raw.error) throw new Error(raw.error);
                 return {
@@ -727,6 +787,16 @@ public struct JavaScriptRuleEvaluator: Sendable {
                   : java.__getCookieValue(String(tag), String(key));
               };
               java.getSource = function () { return typeof source === 'undefined' ? null : source; };
+              java.connect = function (url, headers, timeout) {
+                var raw = java.__connect(url, headers, timeout);
+                var text = raw.body;
+                // Android's StrResponse exposes body(). Retain string coercion
+                // for sources written against the earlier iOS property bridge.
+                raw.body = function () { return text; };
+                raw.body.toString = raw.body.valueOf = raw.body.toJSON = function () { return text; };
+                rememberBody(raw.body, text);
+                return raw;
+              };
               java.getWebViewUA = function () { return '\(LegadoURLBuilder.defaultUserAgent)'; };
               java.getHeaderMap = function () {
                 var map = typeof source === 'undefined' ? {} : source.getHeaderMap(true);
@@ -755,6 +825,7 @@ public struct JavaScriptRuleEvaluator: Sendable {
         timeoutValue: Any?,
         executionContext: RuleExecutionContext
     ) throws -> HTTPResponse {
+        try JSExecutionBudget.current?.check(rule: rawURL)
         let baseText = executionContext.baseURL.isEmpty
             ? executionContext.source?.bookSourceUrl ?? ""
             : executionContext.baseURL
@@ -788,6 +859,7 @@ public struct JavaScriptRuleEvaluator: Sendable {
         } else {
             response = try networkLoader.load(request)
         }
+        try JSExecutionBudget.current?.check(rule: rawURL)
         if let cookie = response.headers.first(where: { $0.key.caseInsensitiveCompare("Set-Cookie") == .orderedSame })?.value {
             LegadoCookieStore.shared.setCookie(cookie, for: response.finalURL.absoluteString)
         }
@@ -826,7 +898,9 @@ public struct JavaScriptRuleEvaluator: Sendable {
         var lastError: Error = HTTPClientError.nonHTTPResponse
         for attempt in 0..<attempts {
             do {
+                try JSExecutionBudget.current?.check(rule: rawURL)
                 var response = try networkLoader.load(request)
+                try JSExecutionBudget.current?.check(rule: rawURL)
                 response.requestedCharset = prepared.charset
                 if let cookie = response.headers.first(where: { $0.key.caseInsensitiveCompare("Set-Cookie") == .orderedSame })?.value {
                     LegadoCookieStore.shared.setCookie(cookie, for: response.finalURL.absoluteString)
@@ -841,6 +915,8 @@ public struct JavaScriptRuleEvaluator: Sendable {
                     let transformed = try JavaScriptRuleEvaluator(
                         maximumScriptLength: maximumScriptLength,
                         maximumResultLength: maximumResultLength,
+                        maximumExecutionTime: maximumExecutionTime,
+                        maximumCheckpoints: maximumCheckpoints,
                         networkLoader: networkLoader,
                         urlBuilder: urlBuilder
                     ).evaluate(
@@ -1099,11 +1175,84 @@ public struct JavaScriptRuleEvaluator: Sendable {
         return absolute.absoluteString
     }
 
-    private func rejectUnboundedExecution(_ script: String) throws {
-        let compact = script.replacingOccurrences(of: #"\s+"#, with: "", options: .regularExpression).lowercased()
-        let rejected = ["while(true)", "while(1)", "for(;;)", "eval(", "functionconstructor("]
-        if let token = rejected.first(where: compact.contains) {
-            throw RuleEngineError.resourceLimit(rule: script, detail: "JavaScript 包含未受控执行结构：\(token)")
+    /// Parse in a separate context: source code cannot replace the parser or
+    /// inspect its native instrumentation callback. Contexts stay on one thread.
+    private static func instrument(_ script: String, checkName: String) throws -> String {
+        let key = "legado.javascript.parser.v1"
+        let parser: JSContext
+        if let cached = Thread.current.threadDictionary[key] as? JSContext {
+            parser = cached
+        } else {
+            #if SWIFT_PACKAGE
+            let bundle = Bundle.module
+            #else
+            let bundle = Bundle.main
+            #endif
+            guard let context = JSContext(),
+                  let acornURL = bundle.url(forResource: "acorn", withExtension: "js"),
+                  let guardURL = bundle.url(forResource: "ExecutionGuard", withExtension: "js") else {
+                throw RuleEngineError.resourceLimit(rule: script, detail: "JavaScript 执行保护资源缺失")
+            }
+            context.evaluateScript(try String(contentsOf: acornURL, encoding: .utf8))
+            context.evaluateScript(try String(contentsOf: guardURL, encoding: .utf8))
+            parser = context
+            Thread.current.threadDictionary[key] = context
+        }
+        parser.exception = nil
+        let value = parser.objectForKeyedSubscript("instrumentLegadoScript")?.call(withArguments: [script, checkName])
+        guard parser.exception == nil, let value, value.isString else {
+            throw RuleEngineError.malformedRule(rule: script, detail: "JavaScript 语法解析失败：\(parser.exception?.toString() ?? "无法插入执行检查")")
+        }
+        return value.toString()
+    }
+
+    private func installExecutionGuard(in context: JSContext, budget: JSExecutionBudget, checkName: String) throws {
+        let checkpoint: @convention(block) () -> Bool = { budget.checkpoint() }
+        let instrumentLogin: @convention(block) (String) -> String? = { script in
+            guard script.utf8.count <= maximumScriptLength else { budget.exhaust(); return nil }
+            return try? Self.instrument(script, checkName: checkName)
+        }
+        // Arguments are captured in a closure and never exposed as JS globals.
+        let installer = context.evaluateScript("""
+            (function (checkpoint, instrumentLogin) {
+              var nativeEval = eval;
+              var nativeImporter = JavaImporter;
+              var importers = new WeakSet();
+              var addImporter = importers.add.bind(importers), hasImporter = importers.has.bind(importers);
+              var define = Object.defineProperty;
+              function check() { if (!checkpoint()) throw 'JavaScript 执行预算已耗尽或任务已取消'; }
+              define(check, 'with', { value: function (value) {
+                if (!hasImporter(value)) throw 'with 仅支持 JavaImporter';
+                return value;
+              }});
+              define(this, '\(checkName)', { value: check });
+              this.JavaImporter = function () {
+                var value = nativeImporter.apply(null, arguments);
+                define(value, '\(checkName)', { value: check });
+                addImporter(value);
+                return value;
+              };
+              source.login = function () {
+                check();
+                if (!source.loginUrl) return null;
+                var script = instrumentLogin(String(source.loginUrl));
+                if (script == null) throw '登录脚本无法通过执行检查';
+                nativeEval(script);
+                return typeof login === 'function' ? login() : null;
+              };
+              // Close aliases such as (() => {}).constructor and async/generator
+              // constructors; generated source would bypass instrumentation.
+              [Function, (async function(){}).constructor, (function*(){}).constructor,
+                (async function*(){}).constructor].forEach(function (ctor) {
+                  define(ctor.prototype, 'constructor', { value: undefined, writable: false, configurable: false });
+              });
+              define(this, 'eval', { value: undefined, writable: false, configurable: false });
+              define(this, 'Function', { value: undefined, writable: false, configurable: false });
+            })
+            """)
+        installer?.call(withArguments: [checkpoint, instrumentLogin])
+        if context.exception != nil {
+            throw RuleEngineError.resourceLimit(rule: "", detail: "无法安装 JavaScript 执行保护")
         }
     }
 
@@ -1155,6 +1304,7 @@ public struct JavaScriptRuleEvaluator: Sendable {
           'use strict';
           var NativeString = global.String;
           global.__legadoUnboxString = function (value) {
+            value = global.__legadoUnboxResponseBody(value);
             return Object.prototype.toString.call(value) === '[object String]' ? NativeString(value) : value;
           };
           function javaClass(name, value) {
@@ -1216,6 +1366,34 @@ public struct JavaScriptRuleEvaluator: Sendable {
               };
             }
           });
+          java.createSymmetricCrypto = function (algorithm, key, iv) {
+            if (!/^AES\/CBC\/PKCS[57]Padding$/i.test(NativeString(algorithm))) {
+              throw new Error('Unsupported symmetric algorithm: ' + algorithm);
+            }
+            var keyBytes = checkedBytes(key).slice();
+            var ivBytes = checkedBytes(iv).slice();
+            if ([16, 24, 32].indexOf(keyBytes.length) < 0 || ivBytes.length !== 16) {
+              throw new Error('Invalid AES key or IV length');
+            }
+            function crypt(mode, value) {
+              var bytes = value;
+              if (typeof value === 'string') {
+                bytes = mode === 1 ? __legadoUTF8Bytes(value)
+                  : (/^(?:[0-9a-f]{2})+$/i.test(value) ? java.hexDecodeToByteArray(value)
+                    : __legadoBase64DecodeBytes(value));
+              }
+              var output = __legadoAESCBC(mode, keyBytes, ivBytes, checkedBytes(bytes));
+              if (!Array.isArray(output)) throw new Error('AES/CBC operation failed');
+              return output;
+            }
+            return Object.freeze({
+              decrypt: function (value) { return crypt(2, value); },
+              encrypt: function (value) { return crypt(1, value); },
+              decryptStr: function (value) { return __legadoUTF8String(crypt(2, value)); },
+              encryptBase64: function (value) { return __legadoBase64EncodeBytes(crypt(1, value)); },
+              encryptHex: function (value) { return __legadoHexEncodeBytes(crypt(1, value)); }
+            });
+          };
           var Mac = javaClass('Mac', {
             getInstance: function (algorithm) {
               if (NativeString(algorithm).toUpperCase() !== 'HMACSHA1') {
@@ -1353,6 +1531,47 @@ public struct JavaScriptRuleEvaluator: Sendable {
             }
         }
         return order.compactMap { name in values[name].map { "\(name)=\($0)" } }.joined(separator: "; ")
+    }
+}
+
+private final class JSExecutionCancellation: @unchecked Sendable {
+    static let threadKey = "legado.javascript.cancellation"
+    static var current: JSExecutionCancellation? { Thread.current.threadDictionary[threadKey] as? JSExecutionCancellation }
+    private let lock = NSLock()
+    private var cancelled = false
+    var isCancelled: Bool { lock.withLock { cancelled } }
+    func cancel() { lock.withLock { cancelled = true } }
+}
+
+/// Shared by nested rule evaluations on the same worker. This is a cooperative
+/// CPU guard, not an engine sandbox: native JSC operations (e.g. a single regex)
+/// cannot be preempted using the public iOS JavaScriptCore API.
+private final class JSExecutionBudget {
+    static let threadKey = "legado.javascript.budget"
+    static var current: JSExecutionBudget? { Thread.current.threadDictionary[threadKey] as? JSExecutionBudget }
+    private let deadline: TimeInterval
+    private var remaining: Int
+    private var exhausted = false
+
+    init(seconds: TimeInterval, checkpoints: Int) {
+        deadline = ProcessInfo.processInfo.systemUptime + (seconds.isFinite ? max(seconds, 0) : 0)
+        remaining = max(checkpoints, 0)
+    }
+
+    func exhaust() { exhausted = true }
+
+    func checkpoint() -> Bool {
+        remaining -= 1
+        exhausted = exhausted || remaining < 0 || ProcessInfo.processInfo.systemUptime >= deadline
+        return !exhausted && JSExecutionCancellation.current?.isCancelled != true
+    }
+
+    func check(rule: String) throws {
+        if JSExecutionCancellation.current?.isCancelled == true { throw CancellationError() }
+        if exhausted || ProcessInfo.processInfo.systemUptime >= deadline {
+            exhausted = true
+            throw RuleEngineError.resourceLimit(rule: rule, detail: "JavaScript 超过运行时间或执行次数上限")
+        }
     }
 }
 

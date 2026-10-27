@@ -81,6 +81,7 @@ private struct OpenSourceLicensesView: View {
             license("SwiftSoup", resource: "SwiftSoup-LICENSE", detail: "MIT License")
             license("Kanna", resource: "Kanna-LICENSE", detail: "MIT License")
             license("ZIPFoundation", resource: "ZIPFoundation-LICENSE", detail: "MIT License")
+            license("Acorn", resource: "Acorn-LICENSE", detail: "MIT License")
         }.navigationTitle("开源许可").navigationBarTitleDisplayMode(.inline)
     }
 

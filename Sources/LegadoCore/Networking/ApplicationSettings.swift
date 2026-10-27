@@ -10,7 +10,7 @@ public struct ApplicationSettings: Codable, Equatable, Sendable {
     public var chapterCacheMB = 256
     public var prefetchChapters = 1
     public var recordLog = false
-    public var ignoreCertificateErrors = true
+    public var ignoreCertificateErrors = false
 
     public init() {}
 

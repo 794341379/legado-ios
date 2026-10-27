@@ -13,6 +13,7 @@ final class SourceSwitchViewModel: ObservableObject {
     var bookName: String { book.name }
     private let service: BookSourceSwitchService
     private var selectionGeneration = 0
+    private var selectionTask: Task<Result<BookSourceSwitchReport, BookSourceSwitchFailure>, Never>?
 
     init(book: Book, service: BookSourceSwitchService = .init(), candidates: [BookSourceCandidate] = []) {
         self.book = book
@@ -38,18 +39,21 @@ final class SourceSwitchViewModel: ObservableObject {
         switchingID = candidate.id
         let generation = selectionGeneration
         errorMessage = nil
-        defer { switchingID = nil }
-        let report = await service.prepareSwitch(current: book, candidate: candidate.book, source: source)
+        defer { switchingID = nil; selectionTask = nil }
+        let selection = Task { await service.prepareSwitchResult(current: book, candidate: candidate.book, source: source) }
+        selectionTask = selection
+        let result = await selection.value
         guard generation == selectionGeneration, !Task.isCancelled else { return nil }
-        guard let report else {
-            errorMessage = "候选书源无法读取目录或当前章节正文，请选择其他书源。已保留当前书源和阅读位置。"
+        switch result {
+        case .success(let report): return (report, source)
+        case .failure(let failure):
+            errorMessage = "\(source.bookSourceName)：\(failure.localizedDescription)。已保留当前书源和阅读位置。"
             return nil
         }
-        return (report, source)
     }
 
     func clearError() { errorMessage = nil }
-    func cancelSelection() { selectionGeneration &+= 1 }
+    func cancelSelection() { selectionGeneration &+= 1; selectionTask?.cancel() }
 }
 
 struct SourceSwitchView: View {

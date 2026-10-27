@@ -70,6 +70,26 @@ public struct AvailableBookSource: Sendable {
     }
 }
 
+public struct BookSourceSwitchFailure: Error, LocalizedError, Sendable {
+    public enum Stage: Sendable { case directory, content, persistence, cancelled }
+    public var stage: Stage
+    public var chapterTitle: String?
+    public var diagnostics: [RuleDiagnostic]
+
+    public var errorDescription: String? {
+        let prefix: String
+        switch stage {
+        case .directory: prefix = "目录读取失败"
+        case .content: prefix = "章节《\(chapterTitle ?? "当前章节")》正文读取失败"
+        case .persistence: prefix = "换源目录保存失败"
+        case .cancelled: return "换源已取消"
+        }
+        let errors = diagnostics.filter { $0.severity == .error }
+        let reason = errors.first(where: { $0.code != "toc.empty" && $0.code != "content.empty" }) ?? errors.first
+        return prefix + (reason.map { "：" + String($0.message.prefix(300)) } ?? "")
+    }
+}
+
 public struct BookSourceProgressMapper: Sendable {
     public init() {}
 
@@ -91,17 +111,22 @@ public struct BookSourceProgressMapper: Sendable {
 
         let oldTitle = current.durChapterTitle ?? ""
         let normalizedOldTitle = normalize(oldTitle)
-        let exactIndex = chapters.firstIndex { chapter in
-            chapter.title == oldTitle || (!normalizedOldTitle.isEmpty && normalize(chapter.title) == normalizedOldTitle)
+        let readableIndices = chapters.indices.filter { !chapters[$0].isVolume }
+        let denominator = max(current.totalChapterNum - 1, 1)
+        let progress = min(max(Double(current.durChapterIndex) / Double(denominator), 0), 1)
+        let estimatedIndex = readableIndices.isEmpty ? 0
+            : readableIndices[Int((progress * Double(readableIndices.count - 1)).rounded())]
+        let exactIndex = readableIndices.filter { index in
+            !normalizedOldTitle.isEmpty && normalize(chapters[index].title) == normalizedOldTitle
+        }.min { lhs, rhs in
+            abs(lhs - estimatedIndex) < abs(rhs - estimatedIndex)
         }
         let resolvedIndex: Int
         if let exactIndex {
             resolvedIndex = exactIndex
             migrated.durChapterPos = current.durChapterPos
         } else if !chapters.isEmpty {
-            let denominator = max(current.totalChapterNum - 1, 1)
-            let progress = min(max(Double(current.durChapterIndex) / Double(denominator), 0), 1)
-            resolvedIndex = min(Int((progress * Double(max(chapters.count - 1, 0))).rounded()), chapters.count - 1)
+            resolvedIndex = estimatedIndex
             migrated.durChapterPos = 0
         } else {
             resolvedIndex = 0
@@ -204,11 +229,24 @@ public actor BookSourceSwitchService {
         source: BookSource,
         now: Int64? = nil
     ) async -> BookSourceSwitchReport? {
-        guard !Task.isCancelled else { return nil }
+        try? await prepareSwitchResult(current: current, candidate: candidate, source: source, now: now).get()
+    }
+
+    public func prepareSwitchResult(
+        current: Book,
+        candidate: SearchBook,
+        source: BookSource,
+        now: Int64? = nil
+    ) async -> Result<BookSourceSwitchReport, BookSourceSwitchFailure> {
+        let cancelled = BookSourceSwitchFailure(stage: .cancelled, diagnostics: [])
+        guard !Task.isCancelled else { return .failure(cancelled) }
         let detail = await detailLoader.loadDetail(searchBook: candidate, source: source)
-        guard !Task.isCancelled else { return nil }
+        guard !Task.isCancelled else { return .failure(cancelled) }
         let toc = await chapterLoader.loadChapters(book: detail.book, source: source, maxPages: 20)
-        guard !Task.isCancelled, toc.chapters.contains(where: { !$0.isVolume }) else { return nil }
+        guard !Task.isCancelled else { return .failure(cancelled) }
+        guard toc.chapters.contains(where: { !$0.isVolume }) else {
+            return .failure(.init(stage: .directory, diagnostics: toc.diagnostics + detail.diagnostics))
+        }
         var result = mapper.migrate(
             current: current,
             replacement: detail.book,
@@ -219,7 +257,7 @@ public actor BookSourceSwitchService {
         let readableIndex = result.chapters.indices.dropFirst(result.book.durChapterIndex)
             .first(where: { !result.chapters[$0].isVolume })
             ?? result.chapters.indices.last(where: { !result.chapters[$0].isVolume })
-        guard let readableIndex else { return nil }
+        guard let readableIndex else { return .failure(.init(stage: .directory, diagnostics: result.diagnostics)) }
         if readableIndex != result.book.durChapterIndex {
             result.book.durChapterIndex = readableIndex
             result.book.durChapterTitle = result.chapters[readableIndex].title
@@ -231,21 +269,26 @@ public actor BookSourceSwitchService {
             book: result.book, chapter: chapter, source: source,
             nextChapterURL: nextURL, maxPages: 20
         )
-        guard !Task.isCancelled,
-              !content.content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return nil }
+        guard !Task.isCancelled else { return .failure(cancelled) }
+        guard !content.content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            return .failure(.init(stage: .content, chapterTitle: chapter.title,
+                diagnostics: content.diagnostics + result.diagnostics))
+        }
         result.verifiedContent = content
         result.diagnostics += content.diagnostics
         do {
             try await chapterRepository.save(result.chapters, bookURL: result.book.bookUrl)
         } catch {
-            result.diagnostics.append(.init(
+            let failure = RuleDiagnostic(
                 severity: .error,
                 code: "source_switch.persistence",
                 message: "换源目录保存失败：\(error.localizedDescription)",
                 rule: result.book.bookUrl
-            ))
+            )
+            return .failure(.init(stage: .persistence, diagnostics: [failure] + result.diagnostics))
         }
-        return result
+        guard !Task.isCancelled else { return .failure(cancelled) }
+        return .success(result)
     }
 
     public func firstAvailableSource(

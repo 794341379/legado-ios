@@ -13,6 +13,54 @@ private struct BookFlowMockTransport: HTTPTransport {
 }
 
 struct NetworkBookServiceTests {
+    @Test func switchesUsingAuthenticatedDirectoryAndAESDecryptedChapterURLs() async throws {
+        // Same rule shape as the reported source; no live token or website is used.
+        let transport = EncryptedDirectoryTransport()
+        let service = NetworkBookService(transport: transport,
+            engine: RuleEngine(javaScript: JavaScriptRuleEvaluator(networkLoader: transport)))
+        var source = BookSource(bookSourceUrl: "https://encrypted.example.test", bookSourceName: "加密目录")
+        source.ruleBookInfo = BookInfoRule()
+        var toc = TocRule()
+        toc.chapterList = #"""
+            <js>
+            const requestHeader = {"Authorization":"Bearer fixture"};
+            const response = java.connect(baseUrl, JSON.stringify(requestHeader));
+            result = response.body();
+            result
+            </js>
+            .list[*]
+            """#
+        toc.chapterName = "chapterName"
+        toc.chapterUrl = #"""
+            path
+            <js>
+            const key = java.base64DecodeToByteArray('ZjA0MWM0OTcxNGQzOTkwOA==');
+            const iv = java.base64DecodeToByteArray('MDEyMzQ1Njc4OWFiY2RlZg==');
+            const crypto = java.createSymmetricCrypto('AES/CBC/PKCS5Padding', key, iv);
+            result = java.bytesToStr(crypto.decrypt(result));
+            result
+            </js>
+            """#
+        source.ruleToc = toc
+        var content = ContentRule()
+        content.content = "content"
+        source.ruleContent = content
+        var current = Book(bookUrl: "old", name: "书", origin: "old")
+        current.durChapterTitle = "第一章"
+        current.durChapterPos = 23
+        let candidate = SearchBook(bookURL: "https://encrypted.example.test/novel/1/chapters",
+            origin: source.id, originName: source.bookSourceName, type: 0, name: "书")
+        let repository = InMemoryBookChapterRepository()
+        let switcher = BookSourceSwitchService(detailLoader: service, chapterLoader: service,
+            contentLoader: service, chapterRepository: repository)
+        let report = try #require(await switcher.prepareSwitch(current: current, candidate: candidate, source: source))
+        #expect(report.chapters.map(\.url) == ["https://encrypted.example.test/chapter/1"])
+        #expect(report.verifiedContent?.content == "解密目录后的正文")
+        #expect(report.diagnostics.isEmpty)
+        #expect(report.book.durChapterPos == 23)
+        #expect(await repository.load(bookURL: candidate.bookURL).count == 1)
+    }
+
     @Test func loadsDetailPaginatedTocAndPaginatedContent() async throws {
         let transport = BookFlowMockTransport(pages: [
             "https://reader.example.test/book/1": """
@@ -158,5 +206,19 @@ struct NetworkBookServiceTests {
         #expect(variables["bookId"] == "1001")
         #expect(variables["chapterId"] == "2002")
         #expect(report.diagnostics.isEmpty)
+    }
+}
+
+private struct EncryptedDirectoryTransport: HTTPTransport, JavaScriptNetworkLoading {
+    func data(for request: URLRequest) async throws -> HTTPResponse {
+        let url = try #require(request.url)
+        let text = url.path == "/chapter/1" ? #"{"content":"解密目录后的正文"}"# : "{}"
+        return .init(data: Data(text.utf8), statusCode: 200, headers: [:], finalURL: url)
+    }
+
+    func load(_ request: URLRequest) throws -> HTTPResponse {
+        #expect(request.value(forHTTPHeaderField: "Authorization") == "Bearer fixture")
+        let text = #"{"list":[{"chapterName":"第一章","path":"u+Z2CNwy0fBTQ43QTmcvD8sL2+/gtQwvs9On6HEgQsbsX/AyRByWV+OSIOD1BWSJ"}]}"#
+        return .init(data: Data(text.utf8), statusCode: 200, headers: [:], finalURL: try #require(request.url))
     }
 }

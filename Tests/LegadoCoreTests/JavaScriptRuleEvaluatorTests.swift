@@ -94,6 +94,26 @@ private final class JavaScriptDirectRequestMock: JavaScriptRedirectNetworkLoadin
 }
 
 struct JavaScriptRuleEvaluatorTests {
+    @Test func symmetricCryptoDecryptsBase64AndHexAndRejectsInvalidInput() throws {
+        let result = try JavaScriptRuleEvaluator().evaluate(script: #"""
+            var crypto = java.createSymmetricCrypto('AES/CBC/PKCS5Padding',
+              java.strToBytes('0123456789abcdef'), java.strToBytes('fedcba9876543210'));
+            var base64 = crypto.encryptBase64('第一段正文\n第二段正文。');
+            var hex = crypto.encryptHex('第一段正文\n第二段正文。');
+            base64 + '|' + java.bytesToStr(crypto.decrypt(base64)) + '|' + crypto.decryptStr(hex);
+            """#, result: .null, executionContext: .init())
+        #expect(result.value.stringValue == "uB3e+ZcJb8o8pStt5rXNGONNFrAK5INFVB+WH+YdxgC/+CbXYZApQvQ2GK2xxkx3|第一段正文\n第二段正文。|第一段正文\n第二段正文。")
+        for script in [
+            "java.createSymmetricCrypto('DES', [], [])",
+            "java.createSymmetricCrypto('AES/CBC/PKCS5Padding', [], [])",
+            "java.createSymmetricCrypto('AES/CBC/PKCS5Padding', java.strToBytes('0123456789abcdef'), java.strToBytes('fedcba9876543210')).decrypt('invalid')"
+        ] {
+            #expect(throws: RuleEngineError.self) {
+                try JavaScriptRuleEvaluator().evaluate(script: script, result: .null, executionContext: .init())
+            }
+        }
+    }
+
     @Test func decryptsSourceContentUsingRhinoPackageImportsAndAESByteArrays() throws {
         // OpenSSL AES-128-CBC/PKCS7 fixture, with a 16-byte IV prepended.
         let script = #"""
@@ -285,6 +305,27 @@ struct JavaScriptRuleEvaluatorTests {
 
         #expect(ajax.value.stringValue == #"{"ok":true}"#)
         #expect(connect.value.stringValue == #"{"ok":true}:201:yes"#)
+    }
+    @Test func connectBodySupportsMethodAndLegacyPropertyResults() throws {
+        var source = BookSource(bookSourceUrl: "https://js-network.example.test", bookSourceName: "JS 网络源")
+        source.header = #"{"X-Source":"source"}"#
+        let evaluator = JavaScriptRuleEvaluator(networkLoader: JavaScriptNetworkMock())
+        let executionContext = RuleExecutionContext(baseURL: source.bookSourceUrl, source: source)
+        let url = #"/api?page=2,{"method":"POST","body":{"id":7},"headers":{"X-Extra":"extra"}}"#
+        for expression in ["r.body()", "r.body"] {
+            let result = try evaluator.evaluate(
+                script: "var r=java.connect(result); " + expression,
+                result: .string(url),
+                executionContext: executionContext
+            )
+            #expect(result.value.stringValue == #"{"ok":true}"#)
+        }
+        let parsed = try evaluator.evaluate(
+            script: "var r=java.connect(result); [JSON.parse(r.body).ok, JSON.parse(r.body()).ok, JSON.parse(JSON.stringify(r)).body]",
+            result: .string(url),
+            executionContext: executionContext
+        )
+        #expect(parsed.value == .array([.bool(true), .bool(true), .string(#"{"ok":true}"#)]))
     }
     @Test func ajaxUsesCharsetHTTPRetryCookieMergeAndBodyJavaScript() throws {
         let host = "https://legacy-js.example.test"
@@ -491,10 +532,111 @@ struct JavaScriptRuleEvaluatorTests {
         #expect(value.value.stringValue == "abc:two:httpTts:99")
     }
 
+    @Test func limitsLoopsLibrariesAndCaughtBudgetExceptions() throws {
+        let evaluator = JavaScriptRuleEvaluator(maximumCheckpoints: 100)
+        for script in [
+            "while (!![]) {}", "for (let i=0; i>=0; i++) {}", "do {} while (1===1)",
+            "try { while (true) {} } catch (e) {} 'swallowed'",
+            "function f() { return f(); } f()",
+            "var f = () => f(); f()", "for (;;) try {} finally {}"
+        ] {
+            do {
+                _ = try evaluator.evaluate(script: script, result: .null, executionContext: .init())
+                Issue.record("未中止脚本：\(script)")
+            } catch let error as RuleEngineError { #expect(error.code == "rule.resource_limit") }
+        }
+        var source = BookSource(bookSourceUrl: "budget-test", bookSourceName: "预算")
+        source.jsLib = "var running = true; while (running) {}"
+        #expect(throws: RuleEngineError.self) {
+            try evaluator.evaluate(script: "1", result: .null, executionContext: .init(source: source))
+        }
+    }
+
+    @Test func retainsFiniteLoopDirectivesArrowsAndTextContainingOldBlacklist() throws {
+        let result = try JavaScriptRuleEvaluator().evaluate(
+            script: #"""
+                function strict() { 'use strict'; return this === undefined; }
+                var n = 0;
+                outer: for (;;) { if (++n === 3) break outer; }
+                for (var i = 0; i < 2; i++) n++;
+                var names = ['😀'].map(x => ({name:x}));
+                // while(true) and eval( are just comments.
+                strict() + ':' + n + ':' + names[0].name + ':while(true)';
+                """#,
+            result: .null, executionContext: .init())
+        #expect(result.value.stringValue == "true:5:😀:while(true)")
+    }
+
+    @Test func preventsDynamicCodeAliasesAndArbitraryWithScopes() throws {
+        for script in ["(0, eval)('1')", "var f = (()=>{}).constructor; f('return 1')()",
+                       "(async function(){}).constructor('return 1')()",
+                       "with (new Proxy({}, {has:()=>true})) { while (true) {} }"] {
+            #expect(throws: RuleEngineError.self) {
+                try JavaScriptRuleEvaluator().evaluate(script: script, result: .null, executionContext: .init())
+            }
+        }
+    }
+
+    @Test func instrumentsLoginScriptsAndKeepsTheirGlobalFunctions() throws {
+        var source = BookSource(bookSourceUrl: "login-budget-test", bookSourceName: "登录")
+        source.loginUrl = "function login() { return 'ok'; }"
+        let evaluator = JavaScriptRuleEvaluator(maximumCheckpoints: 100)
+        let result = try evaluator.evaluate(script: "source.login()", result: .null, executionContext: .init(source: source))
+        #expect(result.value.stringValue == "ok")
+        source.loginUrl = "function login() { while (!![]) {} }"
+        #expect(throws: RuleEngineError.self) {
+            try evaluator.evaluate(script: "source.login()", result: .null, executionContext: .init(source: source))
+        }
+    }
+
+    @Test func cancelsRunningJavaScriptWithoutLeavingWorkerBusy() async throws {
+        let (started, continuation) = AsyncStream.makeStream(of: Void.self)
+        defer { continuation.finish() }
+        let task = Task {
+            try await JavaScriptRuleEvaluator(maximumExecutionTime: 30, maximumCheckpoints: Int.max,
+                networkLoader: SignallingJavaScriptNetworkMock(signal: { continuation.yield(()) }))
+                .evaluateAsync(script: "java.ajax('https://cancel.example.test'); while (!![]) {}",
+                    result: .null, executionContext: .init())
+        }
+        var iterator = started.makeAsyncIterator()
+        await iterator.next()
+        task.cancel()
+        do { _ = try await task.value; Issue.record("未取消脚本") }
+        catch { #expect(error is CancellationError) }
+    }
+
+    @Test func enforcesWallClockBudget() throws {
+        #expect(throws: RuleEngineError.self) {
+            try JavaScriptRuleEvaluator(maximumExecutionTime: 0.02, maximumCheckpoints: Int.max)
+                .evaluate(script: "while (!![]) {}", result: .null, executionContext: .init())
+        }
+    }
+
+    @Test func sharesBudgetAcrossReplacementMatchesAndNestedRules() throws {
+        let evaluator = JavaScriptRuleEvaluator(maximumCheckpoints: 2)
+        let replace = evaluator.replacementEvaluator(script: "result", book: Book(bookUrl: "b", name: "书", origin: "s"),
+            chapter: BookChapter(url: "c", title: "章节", bookUrl: "b", index: 0))
+        #expect(try replace("a") == "a")
+        #expect(try replace("b") == "b")
+        #expect(throws: RuleEngineError.self) { try replace("c") }
+        #expect(throws: RuleEngineError.self) {
+            try JavaScriptRuleEvaluator(maximumCheckpoints: 1).evaluate(
+                script: "java.getString('@js:result', 'nested'); 'ignored'", result: .null, executionContext: .init())
+        }
+    }
+
     @Test func rejectsObviousUnboundedScripts() async {
         let result = await RuleEngine().evaluate("@js:while(true){}", in: .null)
 
         #expect(result.values.isEmpty)
         #expect(result.diagnostics.contains { $0.code == "rule.resource_limit" })
+    }
+}
+
+private struct SignallingJavaScriptNetworkMock: JavaScriptNetworkLoading {
+    let signal: @Sendable () -> Void
+    func load(_ request: URLRequest) throws -> HTTPResponse {
+        signal()
+        return .init(data: Data(), statusCode: 200, headers: [:], finalURL: request.url!)
     }
 }

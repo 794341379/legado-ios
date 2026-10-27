@@ -27,6 +27,13 @@
 - 用途：按需读取 EPUB ZIP 容器与校验资源 CRC。
 - 许可：MIT，完整版权及许可见 [ZIPFoundation-LICENSE.txt](App/Resources/ZIPFoundation-LICENSE.txt)。
 
+## Acorn
+
+- 项目：<https://github.com/acornjs/acorn>，固定版本 `8.15.0`。
+- 用途：解析书源 JavaScript，为循环与函数插入执行预算检查。
+- 材料：`Sources/LegadoCore/RuleEngine/Resources/acorn.js`，来自 `https://unpkg.com/acorn@8.15.0/dist/acorn.js`，SHA-256：`fdb08546776ec6228b03e8d02b40d4ab3255bae5f401adba7ff5dad927ac5c9c`。
+- 许可：MIT，完整版权及许可见 [Acorn-LICENSE.txt](Sources/LegadoCore/RuleEngine/Resources/Acorn-LICENSE.txt)。
+
 ## 测试数据与演示内容
 
 测试中的规则样本仅用于兼容验证，不打包为 App 默认书源。具体说明见 [测试样本说明](Tests/LegadoCoreTests/Fixtures/README.md)。演示模式使用虚构书籍元数据和项目内演示文本；发布截图不使用个人书架、登录信息或付费章节。

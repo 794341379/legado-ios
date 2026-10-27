@@ -1,20 +1,22 @@
 // !$*UTF8*$!
 {
 	archiveVersion = 1;
-	classes = {};
+	classes = {
+	};
 	objectVersion = 56;
 	objects = {
 
 /* Begin PBXBuildFile section */
-		DA1000000000000000000002 /* AppearanceContrastTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA2000000000000000000002; };
-		DA1000000000000000000001 /* DarkModeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA2000000000000000000001; };
-		B10000000000000000000050 = {isa = PBXBuildFile; fileRef = B20000000000000000000050; };
-		B10000000000000000000030 /* ReaderScrollGeometryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000030; };
-		BC1000000000000000000001 /* WebReaderBridgeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC2000000000000000000001; };
-		B10000000000000000000029 /* ReaderScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000029 /* ReaderScrollView.swift */; };
-		F10000000000000000000001 /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = F20000000000000000000001 /* SwiftSoup */; };
-		F10000000000000000000002 /* Kanna in Frameworks */ = {isa = PBXBuildFile; productRef = F20000000000000000000002 /* Kanna */; };
-		F10000000000000000000003 /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = F20000000000000000000003 /* ZIPFoundation */; };
+		910000000000000000000001 /* ApplicationSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20000000000000000000001 /* ApplicationSettings.swift */; };
+		910000000000000000000002 /* HostsHTTPTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20000000000000000000002 /* HostsHTTPTransport.swift */; };
+		910000000000000000000003 /* DiagnosticLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20000000000000000000003 /* DiagnosticLog.swift */; };
+		910000000000000000000004 /* OtherSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20000000000000000000004 /* OtherSettingsView.swift */; };
+		910000000000000000000005 /* DiagnosticLogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20000000000000000000005 /* DiagnosticLogView.swift */; };
+		910000000000000000000006 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20000000000000000000006 /* AboutView.swift */; };
+		910000000000000000000007 /* AppDiagnostics.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20000000000000000000007 /* AppDiagnostics.swift */; };
+		910000000000000000000008 /* Legado-LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = E20000000000000000000008 /* Legado-LICENSE.txt */; };
+		910000000000000000000009 /* SwiftSoup-LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = E20000000000000000000009 /* SwiftSoup-LICENSE.txt */; };
+		91000000000000000000000A /* Kanna-LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = E2000000000000000000000A /* Kanna-LICENSE.txt */; };
 		A10000000000000000000001 /* LegadoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000001 /* LegadoApp.swift */; };
 		A10000000000000000000002 /* RootTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000002 /* RootTabView.swift */; };
 		A10000000000000000000003 /* SourceLibraryModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000003 /* SourceLibraryModel.swift */; };
@@ -23,13 +25,6 @@
 		A10000000000000000000006 /* BookLibraryModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000007 /* BookLibraryModel.swift */; };
 		A10000000000000000000007 /* BookDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000008 /* BookDetailView.swift */; };
 		A10000000000000000000008 /* ReaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000009 /* ReaderView.swift */; };
-		A10000000000000000000021 /* ReaderAppearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000028 /* ReaderAppearance.swift */; };
-		A10000000000000000000022 /* ReaderSpeechController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000029 /* ReaderSpeechController.swift */; };
-		A10000000000000000000023 /* ReaderTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000002A /* ReaderTextView.swift */; };
-		A10000000000000000000024 /* ReaderSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000002B /* ReaderSupport.swift */; };
-		A10000000000000000000025 /* ReaderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000002C /* ReaderViewModel.swift */; };
-		A10000000000000000000026 /* ReadingStatisticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000002D /* ReadingStatisticsView.swift */; };
-		CC1500000000000000000001 /* Compatibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1500000000000000000002 /* Compatibility.swift */; };
 		A10000000000000000000009 /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000000A /* DesignSystem.swift */; };
 		A1000000000000000000000A /* DemoContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000000B /* DemoContent.swift */; };
 		A1000000000000000000000B /* ExploreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000000C /* ExploreView.swift */; };
@@ -54,6 +49,26 @@
 		A1000000000000000000001E /* httpTTS.json in Resources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000025 /* httpTTS.json */; };
 		A1000000000000000000001F /* HttpTTSManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000026 /* HttpTTSManagementView.swift */; };
 		A10000000000000000000020 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000027 /* Assets.xcassets */; };
+		A10000000000000000000021 /* ReaderAppearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000028 /* ReaderAppearance.swift */; };
+		A10000000000000000000022 /* ReaderSpeechController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000029 /* ReaderSpeechController.swift */; };
+		A10000000000000000000023 /* ReaderTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000002A /* ReaderTextView.swift */; };
+		A10000000000000000000024 /* ReaderSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000002B /* ReaderSupport.swift */; };
+		A10000000000000000000025 /* ReaderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000002C /* ReaderViewModel.swift */; };
+		A10000000000000000000026 /* ReadingStatisticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000002D /* ReadingStatisticsView.swift */; };
+		AA1100000000000000000001 /* App/Features/Sources/SourceEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2200000000000000000001 /* App/Features/Sources/SourceEditorView.swift */; };
+		AA1100000000000000000002 /* App/Features/Rules/ReplaceRuleEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2200000000000000000002 /* App/Features/Rules/ReplaceRuleEditorView.swift */; };
+		AA1100000000000000000003 /* App/Features/Rules/Editor/SyntaxCodeEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2200000000000000000003 /* App/Features/Rules/Editor/SyntaxCodeEditor.swift */; };
+		AA1100000000000000000004 /* App/Features/Rules/Editor/QRCodeImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2200000000000000000004 /* App/Features/Rules/Editor/QRCodeImportView.swift */; };
+		AA1100000000000000000007 /* Sources/LegadoCore/Book/ReplaceRuleTester.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2200000000000000000007 /* Sources/LegadoCore/Book/ReplaceRuleTester.swift */; };
+		AA1100000000000000000008 /* Sources/LegadoCore/Import/QRCodeDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2200000000000000000008 /* Sources/LegadoCore/Import/QRCodeDecoder.swift */; };
+		AA1100000000000000000009 /* Tests/LegadoReaderUITests/RuleEditorUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2200000000000000000009 /* Tests/LegadoReaderUITests/RuleEditorUITests.swift */; };
+		AA1100000000000000000010 /* Tests/LegadoReaderUITests/LiveReadingFlowUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2200000000000000000010 /* Tests/LegadoReaderUITests/LiveReadingFlowUITests.swift */; };
+		B10000000000000000000027 /* BookshelfReadViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000027 /* BookshelfReadViewModel.swift */; };
+		B10000000000000000000028 /* BookDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000028 /* BookDetailViewModel.swift */; };
+		B10000000000000000000029 /* ReaderScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000029 /* ReaderScrollView.swift */; };
+		B10000000000000000000030 /* Tests/LegadoReaderTests/ReaderScrollGeometryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000030 /* Tests/LegadoReaderTests/ReaderScrollGeometryTests.swift */; };
+		B10000000000000000000050 /* Tests/LegadoReaderUITests/ReaderScrollGestureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000050 /* Tests/LegadoReaderUITests/ReaderScrollGestureTests.swift */; };
+		BC1000000000000000000001 /* Tests/LegadoReaderTests/WebReaderBridgeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC2000000000000000000001 /* Tests/LegadoReaderTests/WebReaderBridgeTests.swift */; };
 		C10000000000000000000001 /* BookSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000001 /* BookSource.swift */; };
 		C10000000000000000000002 /* BookSourceRules.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000002 /* BookSourceRules.swift */; };
 		C10000000000000000000003 /* LibraryModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20000000000000000000003 /* LibraryModels.swift */; };
@@ -100,44 +115,42 @@
 		C1000000000000000000002C /* RSSSourceDebugger.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2000000000000000000002C /* RSSSourceDebugger.swift */; };
 		C1000000000000000000002D /* AddBookURLService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2000000000000000000002D /* AddBookURLService.swift */; };
 		C1000000000000000000002E /* HttpTTSService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2000000000000000000002E /* HttpTTSService.swift */; };
-		B10000000000000000000027 /* BookshelfReadViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000027 /* BookshelfReadViewModel.swift */; };
-		B10000000000000000000028 /* BookDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000028 /* BookDetailViewModel.swift */; };
-		910000000000000000000001 /* ApplicationSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20000000000000000000001 /* ApplicationSettings.swift */; };
-		910000000000000000000002 /* HostsHTTPTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20000000000000000000002 /* HostsHTTPTransport.swift */; };
-		910000000000000000000003 /* DiagnosticLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20000000000000000000003 /* DiagnosticLog.swift */; };
-		910000000000000000000004 /* OtherSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20000000000000000000004 /* OtherSettingsView.swift */; };
-		910000000000000000000005 /* DiagnosticLogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20000000000000000000005 /* DiagnosticLogView.swift */; };
-		910000000000000000000006 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20000000000000000000006 /* AboutView.swift */; };
-		910000000000000000000007 /* AppDiagnostics.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20000000000000000000007 /* AppDiagnostics.swift */; };
-		910000000000000000000008 /* Legado-LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = E20000000000000000000008 /* Legado-LICENSE.txt */; };
-		910000000000000000000009 /* SwiftSoup-LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = E20000000000000000000009 /* SwiftSoup-LICENSE.txt */; };
-		91000000000000000000000A /* Kanna-LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = E2000000000000000000000A /* Kanna-LICENSE.txt */; };
+		CC1500000000000000000001 /* Compatibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC1500000000000000000002 /* Compatibility.swift */; };
+		DA1000000000000000000001 /* Tests/LegadoReaderUITests/DarkModeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA2000000000000000000001 /* Tests/LegadoReaderUITests/DarkModeUITests.swift */; };
+		DA1000000000000000000002 /* Tests/LegadoReaderTests/AppearanceContrastTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA2000000000000000000002 /* Tests/LegadoReaderTests/AppearanceContrastTests.swift */; };
+		EB1000000000000000000001 /* Sources/LegadoCore/LocalBook/EPUBBook.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB2000000000000000000001 /* Sources/LegadoCore/LocalBook/EPUBBook.swift */; };
+		EB1000000000000000000002 /* App/Resources/ZIPFoundation-LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = EB2000000000000000000002 /* App/Resources/ZIPFoundation-LICENSE.txt */; };
+		EB1000000000000000000003 /* App/Features/Reader/EPUBIllustrationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB2000000000000000000003 /* App/Features/Reader/EPUBIllustrationsView.swift */; };
+		EC1000000000000000000001 /* Sources/LegadoCore/RuleEngine/Resources/acorn.js in Resources */ = {isa = PBXBuildFile; fileRef = EC2000000000000000000001 /* Sources/LegadoCore/RuleEngine/Resources/acorn.js */; };
+		EC1000000000000000000002 /* Sources/LegadoCore/RuleEngine/Resources/ExecutionGuard.js in Resources */ = {isa = PBXBuildFile; fileRef = EC2000000000000000000002 /* Sources/LegadoCore/RuleEngine/Resources/ExecutionGuard.js */; };
+		EC1000000000000000000003 /* Sources/LegadoCore/RuleEngine/Resources/Acorn-LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = EC2000000000000000000003 /* Sources/LegadoCore/RuleEngine/Resources/Acorn-LICENSE.txt */; };
+		F10000000000000000000001 /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = F20000000000000000000001 /* SwiftSoup */; };
+		F10000000000000000000002 /* Kanna in Frameworks */ = {isa = PBXBuildFile; productRef = F20000000000000000000002 /* Kanna */; };
+		F10000000000000000000003 /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = F20000000000000000000003 /* ZIPFoundation */; };
 		F11000000000000000000001 /* FileManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F21000000000000000000001 /* FileManagementView.swift */; };
 		F11000000000000000000002 /* LocalFileService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F21000000000000000000002 /* LocalFileService.swift */; };
 		F11000000000000000000003 /* BookSourceEditorDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = F21000000000000000000003 /* BookSourceEditorDocument.swift */; };
 		F11000000000000000000004 /* RuleImportInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = F21000000000000000000004 /* RuleImportInput.swift */; };
-		AA1100000000000000000001 /* SourceEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2200000000000000000001; };
-		AA1100000000000000000002 /* ReplaceRuleEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2200000000000000000002; };
-		AA1100000000000000000003 /* SyntaxCodeEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2200000000000000000003; };
-		AA1100000000000000000004 /* QRCodeImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2200000000000000000004; };
-		AA1100000000000000000007 /* ReplaceRuleTester.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2200000000000000000007; };
-		AA1100000000000000000008 = {isa = PBXBuildFile; fileRef = AA2200000000000000000008; };
-		AA1100000000000000000009 = {isa = PBXBuildFile; fileRef = AA2200000000000000000009; };
-		AA1100000000000000000010 = {isa = PBXBuildFile; fileRef = AA2200000000000000000010; };
-		EB1000000000000000000001 /* EPUBBook.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB2000000000000000000001; };
-		EB1000000000000000000002 /* ZIPFoundation-LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = EB2000000000000000000002; };
-		EB1000000000000000000003 /* EPUBIllustrationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB2000000000000000000003; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		B90000000000000000000030 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D70000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D50000000000000000000001;
+			remoteInfo = Legado;
+		};
+		B90000000000000000000050 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D70000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D50000000000000000000001;
+			remoteInfo = Legado;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
-		DA2000000000000000000002 /* AppearanceContrastTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests/LegadoReaderTests/AppearanceContrastTests.swift; sourceTree = SOURCE_ROOT; };
-		DA2000000000000000000001 /* DarkModeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests/LegadoReaderUITests/DarkModeUITests.swift; sourceTree = SOURCE_ROOT; };
-		B20000000000000000000050 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests/LegadoReaderUITests/ReaderScrollGestureTests.swift; sourceTree = SOURCE_ROOT; };
-		B20000000000000000000051 = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = LegadoReaderUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		B20000000000000000000030 /* ReaderScrollGeometryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests/LegadoReaderTests/ReaderScrollGeometryTests.swift; sourceTree = SOURCE_ROOT; };
-		BC2000000000000000000001 /* WebReaderBridgeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests/LegadoReaderTests/WebReaderBridgeTests.swift; sourceTree = SOURCE_ROOT; };
-		B20000000000000000000031 /* LegadoReaderTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = LegadoReaderTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		B20000000000000000000029 /* ReaderScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderScrollView.swift; sourceTree = "<group>"; };
 		A20000000000000000000001 /* LegadoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegadoApp.swift; sourceTree = "<group>"; };
 		A20000000000000000000002 /* RootTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootTabView.swift; sourceTree = "<group>"; };
 		A20000000000000000000003 /* SourceLibraryModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourceLibraryModel.swift; sourceTree = "<group>"; };
@@ -147,13 +160,6 @@
 		A20000000000000000000007 /* BookLibraryModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookLibraryModel.swift; sourceTree = "<group>"; };
 		A20000000000000000000008 /* BookDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookDetailView.swift; sourceTree = "<group>"; };
 		A20000000000000000000009 /* ReaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderView.swift; sourceTree = "<group>"; };
-		A20000000000000000000028 /* ReaderAppearance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderAppearance.swift; sourceTree = "<group>"; };
-		A20000000000000000000029 /* ReaderSpeechController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderSpeechController.swift; sourceTree = "<group>"; };
-		A2000000000000000000002A /* ReaderTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderTextView.swift; sourceTree = "<group>"; };
-		A2000000000000000000002B /* ReaderSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderSupport.swift; sourceTree = "<group>"; };
-		A2000000000000000000002C /* ReaderViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderViewModel.swift; sourceTree = "<group>"; };
-		A2000000000000000000002D /* ReadingStatisticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingStatisticsView.swift; sourceTree = "<group>"; };
-		CC1500000000000000000002 /* Compatibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Compatibility.swift; sourceTree = "<group>"; };
 		A2000000000000000000000A /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystem.swift; sourceTree = "<group>"; };
 		A2000000000000000000000B /* DemoContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoContent.swift; sourceTree = "<group>"; };
 		A2000000000000000000000C /* ExploreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExploreView.swift; sourceTree = "<group>"; };
@@ -178,6 +184,28 @@
 		A20000000000000000000025 /* httpTTS.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = httpTTS.json; path = App/Resources/httpTTS.json; sourceTree = "<group>"; };
 		A20000000000000000000026 /* HttpTTSManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HttpTTSManagementView.swift; sourceTree = "<group>"; };
 		A20000000000000000000027 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A20000000000000000000028 /* ReaderAppearance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderAppearance.swift; sourceTree = "<group>"; };
+		A20000000000000000000029 /* ReaderSpeechController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderSpeechController.swift; sourceTree = "<group>"; };
+		A2000000000000000000002A /* ReaderTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderTextView.swift; sourceTree = "<group>"; };
+		A2000000000000000000002B /* ReaderSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderSupport.swift; sourceTree = "<group>"; };
+		A2000000000000000000002C /* ReaderViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderViewModel.swift; sourceTree = "<group>"; };
+		A2000000000000000000002D /* ReadingStatisticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingStatisticsView.swift; sourceTree = "<group>"; };
+		AA2200000000000000000001 /* App/Features/Sources/SourceEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App/Features/Sources/SourceEditorView.swift; sourceTree = SOURCE_ROOT; };
+		AA2200000000000000000002 /* App/Features/Rules/ReplaceRuleEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App/Features/Rules/ReplaceRuleEditorView.swift; sourceTree = SOURCE_ROOT; };
+		AA2200000000000000000003 /* App/Features/Rules/Editor/SyntaxCodeEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App/Features/Rules/Editor/SyntaxCodeEditor.swift; sourceTree = SOURCE_ROOT; };
+		AA2200000000000000000004 /* App/Features/Rules/Editor/QRCodeImportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App/Features/Rules/Editor/QRCodeImportView.swift; sourceTree = SOURCE_ROOT; };
+		AA2200000000000000000007 /* Sources/LegadoCore/Book/ReplaceRuleTester.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/LegadoCore/Book/ReplaceRuleTester.swift; sourceTree = SOURCE_ROOT; };
+		AA2200000000000000000008 /* Sources/LegadoCore/Import/QRCodeDecoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/LegadoCore/Import/QRCodeDecoder.swift; sourceTree = SOURCE_ROOT; };
+		AA2200000000000000000009 /* Tests/LegadoReaderUITests/RuleEditorUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests/LegadoReaderUITests/RuleEditorUITests.swift; sourceTree = SOURCE_ROOT; };
+		AA2200000000000000000010 /* Tests/LegadoReaderUITests/LiveReadingFlowUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests/LegadoReaderUITests/LiveReadingFlowUITests.swift; sourceTree = SOURCE_ROOT; };
+		B20000000000000000000027 /* BookshelfReadViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookshelfReadViewModel.swift; sourceTree = "<group>"; };
+		B20000000000000000000028 /* BookDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookDetailViewModel.swift; sourceTree = "<group>"; };
+		B20000000000000000000029 /* ReaderScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderScrollView.swift; sourceTree = "<group>"; };
+		B20000000000000000000030 /* Tests/LegadoReaderTests/ReaderScrollGeometryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests/LegadoReaderTests/ReaderScrollGeometryTests.swift; sourceTree = SOURCE_ROOT; };
+		B20000000000000000000031 /* LegadoReaderTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = LegadoReaderTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		B20000000000000000000050 /* Tests/LegadoReaderUITests/ReaderScrollGestureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests/LegadoReaderUITests/ReaderScrollGestureTests.swift; sourceTree = SOURCE_ROOT; };
+		B20000000000000000000051 /* LegadoReaderUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = LegadoReaderUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		BC2000000000000000000001 /* Tests/LegadoReaderTests/WebReaderBridgeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests/LegadoReaderTests/WebReaderBridgeTests.swift; sourceTree = SOURCE_ROOT; };
 		C20000000000000000000001 /* BookSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookSource.swift; sourceTree = "<group>"; };
 		C20000000000000000000002 /* BookSourceRules.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookSourceRules.swift; sourceTree = "<group>"; };
 		C20000000000000000000003 /* LibraryModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryModels.swift; sourceTree = "<group>"; };
@@ -224,9 +252,10 @@
 		C2000000000000000000002C /* RSSSourceDebugger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RSSSourceDebugger.swift; sourceTree = "<group>"; };
 		C2000000000000000000002D /* AddBookURLService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddBookURLService.swift; sourceTree = "<group>"; };
 		C2000000000000000000002E /* HttpTTSService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HttpTTSService.swift; sourceTree = "<group>"; };
+		CC1500000000000000000002 /* Compatibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Compatibility.swift; sourceTree = "<group>"; };
 		D20000000000000000000001 /* Legado.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Legado.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		B20000000000000000000027 /* BookshelfReadViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookshelfReadViewModel.swift; sourceTree = "<group>"; };
-		B20000000000000000000028 /* BookDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookDetailViewModel.swift; sourceTree = "<group>"; };
+		DA2000000000000000000001 /* Tests/LegadoReaderUITests/DarkModeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests/LegadoReaderUITests/DarkModeUITests.swift; sourceTree = SOURCE_ROOT; };
+		DA2000000000000000000002 /* Tests/LegadoReaderTests/AppearanceContrastTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests/LegadoReaderTests/AppearanceContrastTests.swift; sourceTree = SOURCE_ROOT; };
 		E20000000000000000000001 /* ApplicationSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationSettings.swift; sourceTree = "<group>"; };
 		E20000000000000000000002 /* HostsHTTPTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostsHTTPTransport.swift; sourceTree = "<group>"; };
 		E20000000000000000000003 /* DiagnosticLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosticLog.swift; sourceTree = "<group>"; };
@@ -234,29 +263,36 @@
 		E20000000000000000000005 /* DiagnosticLogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosticLogView.swift; sourceTree = "<group>"; };
 		E20000000000000000000006 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
 		E20000000000000000000007 /* AppDiagnostics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDiagnostics.swift; sourceTree = "<group>"; };
-		E20000000000000000000008 /* Legado-LICENSE.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = Legado-LICENSE.txt; sourceTree = "<group>"; };
-		E20000000000000000000009 /* SwiftSoup-LICENSE.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = SwiftSoup-LICENSE.txt; sourceTree = "<group>"; };
-		E2000000000000000000000A /* Kanna-LICENSE.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = Kanna-LICENSE.txt; sourceTree = "<group>"; };
+		E20000000000000000000008 /* Legado-LICENSE.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Legado-LICENSE.txt"; sourceTree = "<group>"; };
+		E20000000000000000000009 /* SwiftSoup-LICENSE.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "SwiftSoup-LICENSE.txt"; sourceTree = "<group>"; };
+		E2000000000000000000000A /* Kanna-LICENSE.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Kanna-LICENSE.txt"; sourceTree = "<group>"; };
+		EB2000000000000000000001 /* Sources/LegadoCore/LocalBook/EPUBBook.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/LegadoCore/LocalBook/EPUBBook.swift; sourceTree = SOURCE_ROOT; };
+		EB2000000000000000000002 /* App/Resources/ZIPFoundation-LICENSE.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "App/Resources/ZIPFoundation-LICENSE.txt"; sourceTree = SOURCE_ROOT; };
+		EB2000000000000000000003 /* App/Features/Reader/EPUBIllustrationsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App/Features/Reader/EPUBIllustrationsView.swift; sourceTree = SOURCE_ROOT; };
+		EC2000000000000000000001 /* Sources/LegadoCore/RuleEngine/Resources/acorn.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = Sources/LegadoCore/RuleEngine/Resources/acorn.js; sourceTree = SOURCE_ROOT; };
+		EC2000000000000000000002 /* Sources/LegadoCore/RuleEngine/Resources/ExecutionGuard.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = Sources/LegadoCore/RuleEngine/Resources/ExecutionGuard.js; sourceTree = SOURCE_ROOT; };
+		EC2000000000000000000003 /* Sources/LegadoCore/RuleEngine/Resources/Acorn-LICENSE.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Sources/LegadoCore/RuleEngine/Resources/Acorn-LICENSE.txt"; sourceTree = SOURCE_ROOT; };
 		F21000000000000000000001 /* FileManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileManagementView.swift; sourceTree = "<group>"; };
 		F21000000000000000000002 /* LocalFileService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalFileService.swift; sourceTree = "<group>"; };
 		F21000000000000000000003 /* BookSourceEditorDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookSourceEditorDocument.swift; sourceTree = "<group>"; };
 		F21000000000000000000004 /* RuleImportInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuleImportInput.swift; sourceTree = "<group>"; };
-		AA2200000000000000000001 /* SourceEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App/Features/Sources/SourceEditorView.swift; sourceTree = SOURCE_ROOT; };
-		AA2200000000000000000002 /* ReplaceRuleEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App/Features/Rules/ReplaceRuleEditorView.swift; sourceTree = SOURCE_ROOT; };
-		AA2200000000000000000003 /* SyntaxCodeEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App/Features/Rules/Editor/SyntaxCodeEditor.swift; sourceTree = SOURCE_ROOT; };
-		AA2200000000000000000004 /* QRCodeImportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App/Features/Rules/Editor/QRCodeImportView.swift; sourceTree = SOURCE_ROOT; };
-		AA2200000000000000000007 /* ReplaceRuleTester.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/LegadoCore/Book/ReplaceRuleTester.swift; sourceTree = SOURCE_ROOT; };
-		AA2200000000000000000008 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/LegadoCore/Import/QRCodeDecoder.swift; sourceTree = SOURCE_ROOT; };
-		AA2200000000000000000009 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests/LegadoReaderUITests/RuleEditorUITests.swift; sourceTree = SOURCE_ROOT; };
-		AA2200000000000000000010 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests/LegadoReaderUITests/LiveReadingFlowUITests.swift; sourceTree = SOURCE_ROOT; };
-		EB2000000000000000000001 /* EPUBBook.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/LegadoCore/LocalBook/EPUBBook.swift; sourceTree = SOURCE_ROOT; };
-		EB2000000000000000000002 /* ZIPFoundation-LICENSE.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = App/Resources/ZIPFoundation-LICENSE.txt; sourceTree = SOURCE_ROOT; };
-		EB2000000000000000000003 /* EPUBIllustrationsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App/Features/Reader/EPUBIllustrationsView.swift; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		B30000000000000000000051 = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
-		B30000000000000000000031 = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+		B30000000000000000000031 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B30000000000000000000051 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D30000000000000000000001 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -270,56 +306,32 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		D40000000000000000000001 = {
-			isa = PBXGroup;
-			children = (
-				AA2200000000000000000001 /* SourceEditorView.swift */,
-				AA2200000000000000000002 /* ReplaceRuleEditorView.swift */,
-				AA2200000000000000000003 /* SyntaxCodeEditor.swift */,
-				AA2200000000000000000004 /* QRCodeImportView.swift */,
-				AA2200000000000000000007 /* ReplaceRuleTester.swift */,
-				AA2200000000000000000008,
-				B20000000000000000000050 /* ReaderScrollGestureTests.swift */,
-				AA2200000000000000000009,
-				AA2200000000000000000010,
-				B20000000000000000000030 /* ReaderScrollGeometryTests.swift */,
-				BC2000000000000000000001 /* WebReaderBridgeTests.swift */,
-				DA2000000000000000000001 /* DarkModeUITests.swift */,
-				DA2000000000000000000002 /* AppearanceContrastTests.swift */,
-				A30000000000000000000001 /* App */,
-				C30000000000000000000001 /* LegadoCore */,
-				A20000000000000000000024 /* txtTocRule.json */,
-				A20000000000000000000025 /* httpTTS.json */,
-				D40000000000000000000002 /* Products */,
-			);
-			sourceTree = "<group>";
-		};
 		A30000000000000000000001 /* App */ = {
 			isa = PBXGroup;
 			children = (
-				E30000000000000000000002 /* Licenses */,
-				E30000000000000000000001 /* Settings Feature */,
+				E30000000000000000000002 /* Resources */,
+				E30000000000000000000001 /* Features/Settings */,
 				A20000000000000000000027 /* Assets.xcassets */,
 				A20000000000000000000001 /* LegadoApp.swift */,
 				A20000000000000000000002 /* RootTabView.swift */,
 				CC1500000000000000000002 /* Compatibility.swift */,
 				A2000000000000000000000A /* DesignSystem.swift */,
 				A2000000000000000000000B /* DemoContent.swift */,
-				A30000000000000000000002 /* Sources Feature */,
-				A30000000000000000000003 /* Search Feature */,
-				A30000000000000000000004 /* Books Feature */,
-				A30000000000000000000005 /* Reader Feature */,
-				A30000000000000000000006 /* Explore Feature */,
-				A30000000000000000000007 /* Rules Feature */,
-				A30000000000000000000008 /* Activity Feature */,
-				A30000000000000000000009 /* RSS Feature */,
-				A3000000000000000000000A /* TTS Feature */,
+				A30000000000000000000002 /* Features/Sources */,
+				A30000000000000000000003 /* Features/Search */,
+				A30000000000000000000004 /* Features/Books */,
+				A30000000000000000000005 /* Features/Reader */,
+				A30000000000000000000006 /* Features/Explore */,
+				A30000000000000000000007 /* Features/Rules */,
+				A30000000000000000000008 /* Features/Activity */,
+				A30000000000000000000009 /* Features/RSS */,
+				A3000000000000000000000A /* Features/TTS */,
 				A20000000000000000000005 /* Info.plist */,
 			);
 			path = App;
 			sourceTree = "<group>";
 		};
-		A30000000000000000000002 /* Sources Feature */ = {
+		A30000000000000000000002 /* Features/Sources */ = {
 			isa = PBXGroup;
 			children = (
 				A20000000000000000000003 /* SourceLibraryModel.swift */,
@@ -330,7 +342,7 @@
 			path = Features/Sources;
 			sourceTree = "<group>";
 		};
-		A30000000000000000000003 /* Search Feature */ = {
+		A30000000000000000000003 /* Features/Search */ = {
 			isa = PBXGroup;
 			children = (
 				A20000000000000000000006 /* SearchViewModel.swift */,
@@ -338,7 +350,7 @@
 			path = Features/Search;
 			sourceTree = "<group>";
 		};
-		A30000000000000000000004 /* Books Feature */ = {
+		A30000000000000000000004 /* Features/Books */ = {
 			isa = PBXGroup;
 			children = (
 				A20000000000000000000007 /* BookLibraryModel.swift */,
@@ -351,7 +363,7 @@
 			path = Features/Books;
 			sourceTree = "<group>";
 		};
-		A30000000000000000000005 /* Reader Feature */ = {
+		A30000000000000000000005 /* Features/Reader */ = {
 			isa = PBXGroup;
 			children = (
 				A20000000000000000000009 /* ReaderView.swift */,
@@ -361,12 +373,12 @@
 				A20000000000000000000029 /* ReaderSpeechController.swift */,
 				A20000000000000000000028 /* ReaderAppearance.swift */,
 				A2000000000000000000002B /* ReaderSupport.swift */,
-				EB2000000000000000000003 /* EPUBIllustrationsView.swift */,
+				EB2000000000000000000003 /* App/Features/Reader/EPUBIllustrationsView.swift */,
 			);
 			path = Features/Reader;
 			sourceTree = "<group>";
 		};
-		A30000000000000000000006 /* Explore Feature */ = {
+		A30000000000000000000006 /* Features/Explore */ = {
 			isa = PBXGroup;
 			children = (
 				A2000000000000000000000C /* ExploreView.swift */,
@@ -374,7 +386,7 @@
 			path = Features/Explore;
 			sourceTree = "<group>";
 		};
-		A30000000000000000000007 /* Rules Feature */ = {
+		A30000000000000000000007 /* Features/Rules */ = {
 			isa = PBXGroup;
 			children = (
 				A20000000000000000000010 /* ReplaceRuleLibraryModel.swift */,
@@ -385,7 +397,7 @@
 			path = Features/Rules;
 			sourceTree = "<group>";
 		};
-		A30000000000000000000008 /* Activity Feature */ = {
+		A30000000000000000000008 /* Features/Activity */ = {
 			isa = PBXGroup;
 			children = (
 				F21000000000000000000001 /* FileManagementView.swift */,
@@ -397,7 +409,20 @@
 			path = Features/Activity;
 			sourceTree = "<group>";
 		};
-		A3000000000000000000000A /* TTS Feature */ = {
+		A30000000000000000000009 /* Features/RSS */ = {
+			isa = PBXGroup;
+			children = (
+				A20000000000000000000016 /* RSSLibraryModel.swift */,
+				A20000000000000000000017 /* RSSViews.swift */,
+				A20000000000000000000018 /* RSSSourceEditorView.swift */,
+				A20000000000000000000019 /* RSSWebReaderView.swift */,
+				A20000000000000000000020 /* RSSSourceDebugView.swift */,
+				A20000000000000000000021 /* RSSAddBookView.swift */,
+			);
+			path = Features/RSS;
+			sourceTree = "<group>";
+		};
+		A3000000000000000000000A /* Features/TTS */ = {
 			isa = PBXGroup;
 			children = (
 				A20000000000000000000026 /* HttpTTSManagementView.swift */,
@@ -405,7 +430,7 @@
 			path = Features/TTS;
 			sourceTree = "<group>";
 		};
-		C30000000000000000000001 /* LegadoCore */ = {
+		C30000000000000000000001 /* Sources/LegadoCore */ = {
 			isa = PBXGroup;
 			children = (
 				C30000000000000000000002 /* Domain */,
@@ -536,30 +561,9 @@
 			children = (
 				F21000000000000000000002 /* LocalFileService.swift */,
 				C20000000000000000000018 /* LocalBookService.swift */,
-				EB2000000000000000000001 /* EPUBBook.swift */,
+				EB2000000000000000000001 /* Sources/LegadoCore/LocalBook/EPUBBook.swift */,
 			);
 			path = LocalBook;
-			sourceTree = "<group>";
-		};
-		C3000000000000000000000D /* TTS */ = {
-			isa = PBXGroup;
-			children = (
-				C2000000000000000000002E /* HttpTTSService.swift */,
-			);
-			path = TTS;
-			sourceTree = "<group>";
-		};
-		A30000000000000000000009 /* RSS Feature */ = {
-			isa = PBXGroup;
-			children = (
-				A20000000000000000000016 /* RSSLibraryModel.swift */,
-				A20000000000000000000017 /* RSSViews.swift */,
-				A20000000000000000000018 /* RSSSourceEditorView.swift */,
-				A20000000000000000000019 /* RSSWebReaderView.swift */,
-				A20000000000000000000020 /* RSSSourceDebugView.swift */,
-				A20000000000000000000021 /* RSSAddBookView.swift */,
-			);
-			path = Features/RSS;
 			sourceTree = "<group>";
 		};
 		C3000000000000000000000C /* RSS */ = {
@@ -574,15 +578,52 @@
 			path = RSS;
 			sourceTree = "<group>";
 		};
+		C3000000000000000000000D /* TTS */ = {
+			isa = PBXGroup;
+			children = (
+				C2000000000000000000002E /* HttpTTSService.swift */,
+			);
+			path = TTS;
+			sourceTree = "<group>";
+		};
+		D40000000000000000000001 = {
+			isa = PBXGroup;
+			children = (
+				AA2200000000000000000001 /* App/Features/Sources/SourceEditorView.swift */,
+				AA2200000000000000000002 /* App/Features/Rules/ReplaceRuleEditorView.swift */,
+				AA2200000000000000000003 /* App/Features/Rules/Editor/SyntaxCodeEditor.swift */,
+				AA2200000000000000000004 /* App/Features/Rules/Editor/QRCodeImportView.swift */,
+				AA2200000000000000000007 /* Sources/LegadoCore/Book/ReplaceRuleTester.swift */,
+				AA2200000000000000000008 /* Sources/LegadoCore/Import/QRCodeDecoder.swift */,
+				B20000000000000000000050 /* Tests/LegadoReaderUITests/ReaderScrollGestureTests.swift */,
+				AA2200000000000000000009 /* Tests/LegadoReaderUITests/RuleEditorUITests.swift */,
+				AA2200000000000000000010 /* Tests/LegadoReaderUITests/LiveReadingFlowUITests.swift */,
+				B20000000000000000000030 /* Tests/LegadoReaderTests/ReaderScrollGeometryTests.swift */,
+				BC2000000000000000000001 /* Tests/LegadoReaderTests/WebReaderBridgeTests.swift */,
+				DA2000000000000000000001 /* Tests/LegadoReaderUITests/DarkModeUITests.swift */,
+				DA2000000000000000000002 /* Tests/LegadoReaderTests/AppearanceContrastTests.swift */,
+				A30000000000000000000001 /* App */,
+				C30000000000000000000001 /* Sources/LegadoCore */,
+				EC2000000000000000000003 /* Sources/LegadoCore/RuleEngine/Resources/Acorn-LICENSE.txt */,
+				EC2000000000000000000002 /* Sources/LegadoCore/RuleEngine/Resources/ExecutionGuard.js */,
+				EC2000000000000000000001 /* Sources/LegadoCore/RuleEngine/Resources/acorn.js */,
+				A20000000000000000000024 /* txtTocRule.json */,
+				A20000000000000000000025 /* httpTTS.json */,
+				D40000000000000000000002 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
 		D40000000000000000000002 /* Products */ = {
 			isa = PBXGroup;
 			children = (
 				D20000000000000000000001 /* Legado.app */,
+				B20000000000000000000031 /* LegadoReaderTests.xctest */,
+				B20000000000000000000051 /* LegadoReaderUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		E30000000000000000000001 /* Settings Feature */ = {
+		E30000000000000000000001 /* Features/Settings */ = {
 			isa = PBXGroup;
 			children = (
 				E20000000000000000000004 /* OtherSettingsView.swift */,
@@ -593,13 +634,13 @@
 			path = Features/Settings;
 			sourceTree = "<group>";
 		};
-		E30000000000000000000002 /* Licenses */ = {
+		E30000000000000000000002 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
 				E20000000000000000000008 /* Legado-LICENSE.txt */,
 				E20000000000000000000009 /* SwiftSoup-LICENSE.txt */,
 				E2000000000000000000000A /* Kanna-LICENSE.txt */,
-				EB2000000000000000000002 /* ZIPFoundation-LICENSE.txt */,
+				EB2000000000000000000002 /* App/Resources/ZIPFoundation-LICENSE.txt */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -607,18 +648,40 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-        B50000000000000000000050 = {isa = PBXNativeTarget; buildConfigurationList = B60000000000000000000050; buildPhases = (B30000000000000000000050, B30000000000000000000051); buildRules = (); dependencies = (B80000000000000000000050); name = LegadoReaderUITests; productName = LegadoReaderUITests; productReference = B20000000000000000000051; productType = "com.apple.product-type.bundle.ui-testing"; };
 		B50000000000000000000030 /* LegadoReaderTests */ = {
-            isa = PBXNativeTarget;
-            buildConfigurationList = B60000000000000000000030;
-            buildPhases = (B30000000000000000000030, B30000000000000000000031);
-            buildRules = ();
-            dependencies = (B80000000000000000000030);
-            name = LegadoReaderTests;
-            productName = LegadoReaderTests;
-            productReference = B20000000000000000000031;
-            productType = "com.apple.product-type.bundle.unit-test";
-        };
+			isa = PBXNativeTarget;
+			buildConfigurationList = B60000000000000000000030 /* Build configuration list for PBXNativeTarget "LegadoReaderTests" */;
+			buildPhases = (
+				B30000000000000000000030 /* Sources */,
+				B30000000000000000000031 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B80000000000000000000030 /* PBXTargetDependency */,
+			);
+			name = LegadoReaderTests;
+			productName = LegadoReaderTests;
+			productReference = B20000000000000000000031 /* LegadoReaderTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		B50000000000000000000050 /* LegadoReaderUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B60000000000000000000050 /* Build configuration list for PBXNativeTarget "LegadoReaderUITests" */;
+			buildPhases = (
+				B30000000000000000000050 /* Sources */,
+				B30000000000000000000051 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B80000000000000000000050 /* PBXTargetDependency */,
+			);
+			name = LegadoReaderUITests;
+			productName = LegadoReaderUITests;
+			productReference = B20000000000000000000051 /* LegadoReaderUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 		D50000000000000000000001 /* Legado */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = D60000000000000000000002 /* Build configuration list for PBXNativeTarget "Legado" */;
@@ -627,8 +690,10 @@
 				D30000000000000000000001 /* Frameworks */,
 				D30000000000000000000003 /* Resources */,
 			);
-			buildRules = ();
-			dependencies = ();
+			buildRules = (
+			);
+			dependencies = (
+			);
 			name = Legado;
 			packageProductDependencies = (
 				F20000000000000000000001 /* SwiftSoup */,
@@ -641,15 +706,6 @@
 		};
 /* End PBXNativeTarget section */
 
-/* Begin PBXContainerItemProxy section */
-		B90000000000000000000050 = {isa = PBXContainerItemProxy; containerPortal = D70000000000000000000001; proxyType = 1; remoteGlobalIDString = D50000000000000000000001; remoteInfo = Legado; };
-        B90000000000000000000030 = {isa = PBXContainerItemProxy; containerPortal = D70000000000000000000001; proxyType = 1; remoteGlobalIDString = D50000000000000000000001; remoteInfo = Legado; };
-/* End PBXContainerItemProxy section */
-/* Begin PBXTargetDependency section */
-		B80000000000000000000050 = {isa = PBXTargetDependency; target = D50000000000000000000001; targetProxy = B90000000000000000000050; };
-        B80000000000000000000030 = {isa = PBXTargetDependency; target = D50000000000000000000001; targetProxy = B90000000000000000000030; };
-/* End PBXTargetDependency section */
-
 /* Begin PBXProject section */
 		D70000000000000000000001 /* Project object */ = {
 			isa = PBXProject;
@@ -658,15 +714,23 @@
 				LastSwiftUpdateCheck = 2610;
 				LastUpgradeCheck = 2610;
 				TargetAttributes = {
-                    B50000000000000000000050 = {CreatedOnToolsVersion = 26.1; TestTargetID = D50000000000000000000001; };
-					D50000000000000000000001 = { CreatedOnToolsVersion = 26.1; };
+					B50000000000000000000050 = {
+						CreatedOnToolsVersion = 26.1;
+						TestTargetID = D50000000000000000000001;
+					};
+					D50000000000000000000001 = {
+						CreatedOnToolsVersion = 26.1;
+					};
 				};
 			};
 			buildConfigurationList = D60000000000000000000001 /* Build configuration list for PBXProject "Legado" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
-			knownRegions = (en, Base);
+			knownRegions = (
+				en,
+				Base,
+			);
 			mainGroup = D40000000000000000000001;
 			packageReferences = (
 				F30000000000000000000001 /* XCRemoteSwiftPackageReference "SwiftSoup" */,
@@ -676,7 +740,11 @@
 			productRefGroup = D40000000000000000000002 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
-			targets = (D50000000000000000000001 /* Legado */, B50000000000000000000030 /* LegadoReaderTests */, B50000000000000000000050 /* LegadoReaderUITests */);
+			targets = (
+				D50000000000000000000001 /* Legado */,
+				B50000000000000000000030 /* LegadoReaderTests */,
+				B50000000000000000000050 /* LegadoReaderUITests */,
+			);
 		};
 /* End PBXProject section */
 
@@ -689,8 +757,11 @@
 				910000000000000000000009 /* SwiftSoup-LICENSE.txt in Resources */,
 				910000000000000000000008 /* Legado-LICENSE.txt in Resources */,
 				A10000000000000000000020 /* Assets.xcassets in Resources */,
+				EC1000000000000000000003 /* Sources/LegadoCore/RuleEngine/Resources/Acorn-LICENSE.txt in Resources */,
+				EC1000000000000000000002 /* Sources/LegadoCore/RuleEngine/Resources/ExecutionGuard.js in Resources */,
+				EC1000000000000000000001 /* Sources/LegadoCore/RuleEngine/Resources/acorn.js in Resources */,
 				A1000000000000000000001D /* txtTocRule.json in Resources */,
-				EB1000000000000000000002 /* ZIPFoundation-LICENSE.txt in Resources */,
+				EB1000000000000000000002 /* App/Resources/ZIPFoundation-LICENSE.txt in Resources */,
 				A1000000000000000000001E /* httpTTS.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -698,18 +769,37 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		B30000000000000000000050 = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (B10000000000000000000050, AA1100000000000000000009, AA1100000000000000000010, DA1000000000000000000001); runOnlyForDeploymentPostprocessing = 0; };
-		B30000000000000000000030 = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (B10000000000000000000030, BC1000000000000000000001, DA1000000000000000000002); runOnlyForDeploymentPostprocessing = 0; };
+		B30000000000000000000030 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B10000000000000000000030 /* Tests/LegadoReaderTests/ReaderScrollGeometryTests.swift in Sources */,
+				BC1000000000000000000001 /* Tests/LegadoReaderTests/WebReaderBridgeTests.swift in Sources */,
+				DA1000000000000000000002 /* Tests/LegadoReaderTests/AppearanceContrastTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B30000000000000000000050 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B10000000000000000000050 /* Tests/LegadoReaderUITests/ReaderScrollGestureTests.swift in Sources */,
+				AA1100000000000000000009 /* Tests/LegadoReaderUITests/RuleEditorUITests.swift in Sources */,
+				AA1100000000000000000010 /* Tests/LegadoReaderUITests/LiveReadingFlowUITests.swift in Sources */,
+				DA1000000000000000000001 /* Tests/LegadoReaderUITests/DarkModeUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D30000000000000000000002 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AA1100000000000000000001 /* SourceEditorView.swift in Sources */,
-				AA1100000000000000000002 /* ReplaceRuleEditorView.swift in Sources */,
-				AA1100000000000000000003 /* SyntaxCodeEditor.swift in Sources */,
-				AA1100000000000000000004 /* QRCodeImportView.swift in Sources */,
-				AA1100000000000000000007 /* ReplaceRuleTester.swift in Sources */,
-				AA1100000000000000000008,
+				AA1100000000000000000001 /* App/Features/Sources/SourceEditorView.swift in Sources */,
+				AA1100000000000000000002 /* App/Features/Rules/ReplaceRuleEditorView.swift in Sources */,
+				AA1100000000000000000003 /* App/Features/Rules/Editor/SyntaxCodeEditor.swift in Sources */,
+				AA1100000000000000000004 /* App/Features/Rules/Editor/QRCodeImportView.swift in Sources */,
+				AA1100000000000000000007 /* Sources/LegadoCore/Book/ReplaceRuleTester.swift in Sources */,
+				AA1100000000000000000008 /* Sources/LegadoCore/Import/QRCodeDecoder.swift in Sources */,
 				910000000000000000000007 /* AppDiagnostics.swift in Sources */,
 				910000000000000000000006 /* AboutView.swift in Sources */,
 				910000000000000000000005 /* DiagnosticLogView.swift in Sources */,
@@ -784,8 +874,8 @@
 				C10000000000000000000016 /* BookExploreService.swift in Sources */,
 				C10000000000000000000017 /* BookSourceDebugger.swift in Sources */,
 				C10000000000000000000018 /* LocalBookService.swift in Sources */,
-				EB1000000000000000000003 /* EPUBIllustrationsView.swift in Sources */,
-				EB1000000000000000000001 /* EPUBBook.swift in Sources */,
+				EB1000000000000000000003 /* App/Features/Reader/EPUBIllustrationsView.swift in Sources */,
+				EB1000000000000000000001 /* Sources/LegadoCore/LocalBook/EPUBBook.swift in Sources */,
 				C10000000000000000000019 /* ContentSanitizer.swift in Sources */,
 				C1000000000000000000001A /* ReplaceRuleRepository.swift in Sources */,
 				C1000000000000000000001B /* ReadingActivityRepository.swift in Sources */,
@@ -813,39 +903,78 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		B80000000000000000000030 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D50000000000000000000001 /* Legado */;
+			targetProxy = B90000000000000000000030 /* PBXContainerItemProxy */;
+		};
+		B80000000000000000000050 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D50000000000000000000001 /* Legado */;
+			targetProxy = B90000000000000000000050 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
-        B10000000000000000000052 = {isa = XCBuildConfiguration; buildSettings = {CODE_SIGN_STYLE = Automatic; GENERATE_INFOPLIST_FILE = YES; IPHONEOS_DEPLOYMENT_TARGET = 15.0; PRODUCT_BUNDLE_IDENTIFIER = com.epiboly.legado.reader-ui-tests; PRODUCT_NAME = "$(TARGET_NAME)"; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator"; TARGETED_DEVICE_FAMILY = "1,2"; TEST_TARGET_NAME = Legado; }; name = Debug; };
-        B10000000000000000000053 = {isa = XCBuildConfiguration; buildSettings = {CODE_SIGN_STYLE = Automatic; GENERATE_INFOPLIST_FILE = YES; IPHONEOS_DEPLOYMENT_TARGET = 15.0; PRODUCT_BUNDLE_IDENTIFIER = com.epiboly.legado.reader-ui-tests; PRODUCT_NAME = "$(TARGET_NAME)"; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator"; TARGETED_DEVICE_FAMILY = "1,2"; TEST_TARGET_NAME = Legado; }; name = Release; };
-        B10000000000000000000032 = {
-            isa = XCBuildConfiguration;
-            buildSettings = {
-                BUNDLE_LOADER = "$(TEST_HOST)";
-                CODE_SIGN_STYLE = Automatic;
-                GENERATE_INFOPLIST_FILE = YES;
-                IPHONEOS_DEPLOYMENT_TARGET = 15.0;
-                PRODUCT_BUNDLE_IDENTIFIER = com.epiboly.legado.reader-tests;
-                PRODUCT_NAME = "$(TARGET_NAME)";
-                SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-                TARGETED_DEVICE_FAMILY = "1,2";
-                TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Legado.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Legado";
-            };
-            name = Debug;
-        };
-        B10000000000000000000033 = {
-            isa = XCBuildConfiguration;
-            buildSettings = {
-                BUNDLE_LOADER = "$(TEST_HOST)";
-                CODE_SIGN_STYLE = Automatic;
-                GENERATE_INFOPLIST_FILE = YES;
-                IPHONEOS_DEPLOYMENT_TARGET = 15.0;
-                PRODUCT_BUNDLE_IDENTIFIER = com.epiboly.legado.reader-tests;
-                PRODUCT_NAME = "$(TARGET_NAME)";
-                SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-                TARGETED_DEVICE_FAMILY = "1,2";
-                TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Legado.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Legado";
-            };
-            name = Release;
-        };
+		B10000000000000000000032 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.epiboly.legado.reader-tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Legado.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Legado";
+			};
+			name = Debug;
+		};
+		B10000000000000000000033 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.epiboly.legado.reader-tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Legado.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Legado";
+			};
+			name = Release;
+		};
+		B10000000000000000000052 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.epiboly.legado.reader-ui-tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Legado;
+			};
+			name = Debug;
+		};
+		B10000000000000000000053 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.epiboly.legado.reader-ui-tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Legado;
+			};
+			name = Release;
+		};
 		E10000000000000000000001 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -879,16 +1008,22 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 18;
 				DEVELOPMENT_ASSET_PATHS = "";
+				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = App/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 0.1.12;
-				OTHER_LDFLAGS = "$(inherited) -lsqlite3";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-lsqlite3",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.epiboly.legado;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -900,15 +1035,21 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 18;
+				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = App/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MARKETING_VERSION = 0.1.12;
-				OTHER_LDFLAGS = "$(inherited) -lsqlite3";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-lsqlite3",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.epiboly.legado;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -919,17 +1060,39 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		B60000000000000000000050 = {isa = XCConfigurationList; buildConfigurations = (B10000000000000000000052, B10000000000000000000053); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
-		B60000000000000000000030 = {isa = XCConfigurationList; buildConfigurations = (B10000000000000000000032, B10000000000000000000033); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+		B60000000000000000000030 /* Build configuration list for PBXNativeTarget "LegadoReaderTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B10000000000000000000032 /* Debug */,
+				B10000000000000000000033 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B60000000000000000000050 /* Build configuration list for PBXNativeTarget "LegadoReaderUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B10000000000000000000052 /* Debug */,
+				B10000000000000000000053 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		D60000000000000000000001 /* Build configuration list for PBXProject "Legado" */ = {
 			isa = XCConfigurationList;
-			buildConfigurations = (E10000000000000000000001 /* Debug */, E10000000000000000000002 /* Release */);
+			buildConfigurations = (
+				E10000000000000000000001 /* Debug */,
+				E10000000000000000000002 /* Release */,
+			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 		D60000000000000000000002 /* Build configuration list for PBXNativeTarget "Legado" */ = {
 			isa = XCConfigurationList;
-			buildConfigurations = (E10000000000000000000003 /* Debug */, E10000000000000000000004 /* Release */);
+			buildConfigurations = (
+				E10000000000000000000003 /* Debug */,
+				E10000000000000000000004 /* Release */,
+			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
@@ -939,17 +1102,26 @@
 		F30000000000000000000001 /* XCRemoteSwiftPackageReference "SwiftSoup" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/scinfu/SwiftSoup.git";
-			requirement = { kind = exactVersion; version = 2.13.5; };
+			requirement = {
+				kind = exactVersion;
+				version = 2.13.5;
+			};
 		};
 		F30000000000000000000002 /* XCRemoteSwiftPackageReference "Kanna" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/tid-kijyun/Kanna.git";
-			requirement = { kind = exactVersion; version = 6.1.0; };
+			requirement = {
+				kind = exactVersion;
+				version = 6.1.0;
+			};
 		};
 		F30000000000000000000003 /* XCRemoteSwiftPackageReference "ZIPFoundation" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/weichsel/ZIPFoundation.git";
-			requirement = { kind = exactVersion; version = 0.9.20; };
+			requirement = {
+				kind = exactVersion;
+				version = 0.9.20;
+			};
 		};
 /* End XCRemoteSwiftPackageReference section */
 

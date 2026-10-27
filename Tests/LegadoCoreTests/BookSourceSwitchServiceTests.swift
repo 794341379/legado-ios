@@ -1,3 +1,4 @@
+import Foundation
 import Testing
 @testable import LegadoCore
 
@@ -113,6 +114,60 @@ struct BookSourceSwitchServiceTests {
         #expect(report.book.durChapterPos == 0)
     }
 
+    @Test func matchesReadableDuplicateNearestProgressAndSkipsVolumeHeadings() {
+        var current = Book(bookUrl: "old", name: "书", origin: "old")
+        current.totalChapterNum = 4
+        current.durChapterIndex = 3
+        current.durChapterTitle = "重逢"
+        current.durChapterPos = 48
+        var chapters = (0..<4).map { BookChapter(url: "n\($0)", title: "重逢", bookUrl: "new", index: $0) }
+        chapters[0].isVolume = true
+        let mapper = BookSourceProgressMapper()
+        let replacement = Book(bookUrl: "new", name: "书", origin: "new")
+        let exact = mapper.migrate(current: current, replacement: replacement, chapters: chapters, now: 1)
+        #expect(exact.book.durChapterIndex == 3)
+        #expect(exact.book.durChapterPos == 48)
+        current.durChapterTitle = "不存在"
+        current.durChapterIndex = 0
+        let fallback = mapper.migrate(current: current, replacement: replacement, chapters: chapters, now: 1)
+        #expect(fallback.book.durChapterIndex == 1)
+        #expect(fallback.book.durChapterPos == 0)
+    }
+
+    @Test func exposesDirectoryAndContentFailureCausesWithoutSavingCandidate() async throws {
+        let repository = InMemoryBookChapterRepository()
+        let current = Book(bookUrl: "old", name: "书", origin: "old")
+        let candidate = SearchBook(bookURL: "new", origin: "new", originName: "新源", type: 0, name: "书")
+        let source = BookSource(bookSourceUrl: "new", bookSourceName: "新源")
+        let error = RuleDiagnostic(severity: .error, code: "rule.malformed", message: "解密接口调用失败", rule: "fixture")
+        let empty = RuleDiagnostic(severity: .error, code: "toc.empty", message: "目录为空", rule: "fixture")
+        let loader = StubSwitchLoader(chapters: [], diagnostics: [error, empty])
+        let directoryService = BookSourceSwitchService(detailLoader: loader, chapterLoader: loader, chapterRepository: repository)
+        let directory = await directoryService.prepareSwitchResult(current: current, candidate: candidate, source: source)
+        guard case .failure(let directoryFailure) = directory else { Issue.record("应当拒绝空目录"); return }
+        #expect(directoryFailure.localizedDescription.contains("目录读取失败：解密接口调用失败"))
+        #expect(directoryFailure.diagnostics == [error, empty])
+
+        let chapters = StubSwitchLoader(chapters: [.init(url: "c1", title: "第一章", bookUrl: "new", index: 0)])
+        let contentService = BookSourceSwitchService(detailLoader: chapters, chapterLoader: chapters,
+            contentLoader: SwitchContentLoader(body: "", diagnostics: [error]), chapterRepository: repository)
+        let content = await contentService.prepareSwitchResult(current: current, candidate: candidate, source: source)
+        guard case .failure(let contentFailure) = content else { Issue.record("应当拒绝空正文"); return }
+        #expect(contentFailure.localizedDescription.contains("章节《第一章》正文读取失败：解密接口调用失败"))
+        #expect(await repository.load(bookURL: "new").isEmpty)
+    }
+
+    @Test func refusesSwitchWhenVerifiedDirectoryCannotBeSaved() async {
+        let loader = StubSwitchLoader(chapters: [.init(url: "c1", title: "第一章", bookUrl: "new", index: 0)])
+        let service = BookSourceSwitchService(detailLoader: loader, chapterLoader: loader,
+            contentLoader: SwitchContentLoader(), chapterRepository: FailingSwitchChapterRepository())
+        let result = await service.prepareSwitchResult(current: Book(bookUrl: "old", name: "书", origin: "old"),
+            candidate: SearchBook(bookURL: "new", origin: "new", originName: "新源", type: 0, name: "书"),
+            source: BookSource(bookSourceUrl: "new", bookSourceName: "新源"))
+        guard case .failure(let failure) = result else { Issue.record("保存失败时不应提交换源"); return }
+        #expect(failure.diagnostics.first?.code == "source_switch.persistence")
+    }
+
     @Test func refusesSwitchWhenCandidateDirectoryCannotBeLoaded() async {
         let repository = InMemoryBookChapterRepository()
         let service = BookSourceSwitchService(
@@ -220,8 +275,9 @@ struct BookSourceSwitchServiceTests {
 
 private struct SwitchContentLoader: ChapterContentLoading {
     var body = "验证后的正文"
+    var diagnostics: [RuleDiagnostic] = []
     func loadContent(book: Book, chapter: BookChapter, source: BookSource, nextChapterURL: String?, maxPages: Int) async -> ChapterContentReport {
-        .init(content: source.id == "broken-body" ? "" : body)
+        .init(content: source.id == "broken-body" ? "" : body, diagnostics: diagnostics)
     }
 }
 
@@ -250,11 +306,12 @@ private struct StubSwitchSearch: BookSourceSearching {
 
 private struct StubSwitchLoader: BookDetailLoading, ChapterListLoading {
     let chapters: [BookChapter]
+    var diagnostics: [RuleDiagnostic] = []
     func loadDetail(searchBook: SearchBook, source: BookSource) async -> BookDetailReport {
         .init(book: Book(bookUrl: searchBook.bookURL, name: searchBook.name, author: searchBook.author, origin: source.bookSourceUrl))
     }
     func loadChapters(book: Book, source: BookSource, maxPages: Int) async -> ChapterListReport {
-        .init(chapters: chapters)
+        .init(chapters: chapters, diagnostics: diagnostics)
     }
 }
 
@@ -267,4 +324,10 @@ private struct CandidateAwareSwitchLoader: BookDetailLoading, ChapterListLoading
         guard source.bookSourceUrl == "valid" else { return .init(chapters: []) }
         return .init(chapters: [BookChapter(url: "chapter", title: "有效目录", bookUrl: book.bookUrl, index: 0)])
     }
+}
+
+private struct FailingSwitchChapterRepository: BookChapterRepository {
+    func load(bookURL: String) async throws -> [BookChapter] { [] }
+    func save(_ chapters: [BookChapter], bookURL: String) async throws { throw CocoaError(.fileWriteOutOfSpace) }
+    func remove(bookURL: String) async throws {}
 }
